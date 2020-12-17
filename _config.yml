@@ -14,7 +14,7 @@ author: Oğuzhan Katlı
 # --- List of links in the navigation bar --- #
 
 navbar-links:
-  About Me: "aboutme"
+  Hakkımda: "aboutme"
   Repolar: "https://github.com/nixiz"
   C++ Türkiye: "https://trcpp.org/"
     - Slack: "https://trcpp.slack.com"
