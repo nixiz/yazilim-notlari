@@ -2,7 +2,6 @@
 layout: post
 title: C++20 ile Gelen Yenilikler - Part I
 subtitle: C++20 Concepts Kütüphanesi
-cover-img: /assets/img/cpp20-timeline.png
 thumbnail-img: /assets/img/cpp20-timeline.png
 share-img: /assets/img/cpp20-timeline.png
 nav-short: true
@@ -12,6 +11,7 @@ show-avatar: false
 language: tr
 tags: [C++, C++20, yazılım, concepts]
 ---
+![C++ Road Map](/assets/img/cpp20-timeline.png){: .mx-auto.d-block :}
 
 C++ dilinde kod geliştiren yazılımcılar, dilin 1998 yılında standartlaşmasının ardından, 2011 yılında C++11 standardı çıkana kadar uzunca bir süre kullandıkları dilde bir değişim olmadan yazılımlarını geliştirmeye devam etmişlerdi. Bu zaman zarfında gelişen ve değişen dünyadaki problemlere çözüm bulmak, C++ dilinde gittikçe zorlaşmış, üçüncü parti kütüphane desteği olmadan güncel problemlere çözüm sunamayan eski kalmış bir dil haline gelmişti. C++ geliştiricileri, [Boost](https://www.boost.org/) gibi kütüphaneler olmadan diğer yazılım dillerinin sağladığı özellikler ile yarışamaz bir durumdaydılar.
 
