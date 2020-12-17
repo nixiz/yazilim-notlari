@@ -44,7 +44,7 @@ int main()  {
 Kodumuzu derlemek istediğimizde derleyici bize aşağıdaki gibi anlaşılması zor, karmaşık bir hata mesajı üretecektir
 >**Visual Studio 2017 derleyici çıktısı:**
 
-```sh
+```shell
 C:/...//list(1461): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
 C:/...//list(1423): note: see reference to function template instantiation 'void std::list<int,std::allocator<_Ty>>::_Insert_range<_Iter>(std::_List_unchecked_const_iterator<std::_List_val<std::_List_simple_types<_Ty>>,std::_Iterator_base0>,_Iter,_Iter,std::forward_iterator_tag)' being compiled
         with
@@ -123,7 +123,7 @@ C++20 standardında yeni eklenen `concept` ve `requires` ifadeleri ile tanımlan
 
 >**Visual Studio 2019 v.19.26.xx derleyici çıktısı:**
 
-```sh
+```shell
 C:/.../algorithm(4138): error C2676: binary '-': 'const std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<_Ty>>>' does not define this operator or a conversion to a type acceptable to the predefined operator
         with
         [
@@ -253,7 +253,7 @@ Yeni tanımladığımız `Incrementable` konseptinin doğrulanması için `Addab
 
 8. Ancak, kendi yarattığımız `my_int` sınıfı bu kuralları karşılayamadığı için kodumuz bu noktada derleme hatası verecektir.
 
-    ```sh
+    ```shell
     >C:\...\ranges.cpp(35,23): error C2672: 'test_concept_Incrementable': no matching overloaded function found
     >C:\...\ranges.cpp(35,51): error C7602: 'test_concept_Incrementable': the associated constraints are not satisfied
     >C:\...\ranges.cpp(20): message : see declaration of 'test_concept_Incrementable'
