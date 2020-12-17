@@ -16,9 +16,11 @@ author: Oğuzhan Katlı
 navbar-links:
   Hakkımda: "aboutme"
   Repolar: "https://github.com/nixiz"
-  C++ Türkiye: "https://trcpp.org/"
+  C++ Türkiye:
     - Slack: "https://trcpp.slack.com"
     - Telegram: "https://t.me/trcpp"
+    - YouTube: "https://www.youtube.com/c/TurkeyCpp"
+    - Web: "https://trcpp.org/"
 
 # --- Logo --- #
 
