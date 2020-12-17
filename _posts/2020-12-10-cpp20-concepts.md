@@ -1,10 +1,14 @@
 ---
-layout: minimal
+layout: post
 title: C++20 ile Gelen Yenilikler - Part I
 subtitle: C++20 Concepts Kütüphanesi
 cover-img: /assets/img/cpp20-timeline.png
-thumbnail-img: /assets/img/cpp_logo.png
+thumbnail-img: /assets/img/cpp20-timeline.png
 share-img: /assets/img/cpp20-timeline.png
+comments: true
+readtime: true
+show-avatar: false
+language: tr
 tags: [C++, C++20, yazılım, concepts]
 ---
 
