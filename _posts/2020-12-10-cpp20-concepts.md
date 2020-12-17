@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: minimal
 title: C++20 ile Gelen Yenilikler - Part I
 subtitle: C++20 Concepts Kütüphanesi
 cover-img: /assets/img/cpp20-timeline.png
