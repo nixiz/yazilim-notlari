@@ -12,7 +12,7 @@ language: tr
 tags: [C++, yazılım, templates, lazy]
 ---
 
-C++20 standartı ile gelen [Range kütüphanesini](2020-12-17-cpp20-ranges) sizlere aktardığım yazımda, kütüphanenin sahip olduğu
+C++20 standartı ile gelen [Range kütüphanesini](../2020-12-17-cpp20-ranges) sizlere aktardığım yazımda, kütüphanenin sahip olduğu
 tembel hesaplama yaklaşımından ve dile kazandırdığı faydalardan bahsetmiştim. Range kütüphanesini
 tanıtırken teknik detaylara yer vermeden, sahip olduğu adaptörleri ve üreteçleri örnek kullanımları
 ile aktarmaya çalışmıştım. Ancak, tembel hesaplama tekniğini anlamadan, ranges kütüphanesini anlamak pek
