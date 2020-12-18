@@ -19,14 +19,13 @@ ile aktarmaya çalışmıştım. Ancak, tembel hesaplama tekniğini anlamadan, r
 mümkün olmayacağı için, sizlere biraz lazy evaluation kavramından bahsetmek ve range kütüphanesinin
 bunu nasıl sağladığını anlatmak istiyorum.
 
-![Expression Tempale Origin](expression_template_origin.png){: .mx-auto.d-block :}
-> Expression Template Nasıl Ortaya Çıktı
+![Expression Tempale Origin](../assets/img/expression_template_origin.png){: .mx-auto.d-block :}
 
 İlk olarak 1995 yılında [Expression Templates](https://en.wikipedia.org/wiki/Expression_templates) tekniği ile karşımıza çıkan tembel yaklaşım mimarisi, [Blaze](https://bitbucket.org/blaze-lib/blaze/src/master/), [Boost.UBlas](https://www.boost.org/doc/libs/1_75_0/libs/numeric/ublas/doc/index.html), [Blitz](https://github.com/blitzpp/blitz) gibi numerik hesaplamalar
 için geliştirilen kütüphanelerin çekirdek mimarisini oluşturmaktadır. Tembel yaklaşım ile hesaplama,
 temelinde çok basit bir mimariye sahip olmasına rağmen, performans etkisi inanılmaz ölçülerde olabilmektedir.
 
-![Matris Çarpım Hızları](matrix_multip_benchmark.png){: .mx-auto.d-block :}
+![Matris Çarpım Hızları](../assets/img/matrix_multip_benchmark.png){: .mx-auto.d-block :}
 
 Tembel yaklaşım mimarisinin bu zamana kadar bilinmesine rağmen geliştiriciler tarafından zorunda kalınmadıkça
 tercih edilmemesinin sebebi, Modern C++ öncesinde `auto` tip çıkarıcısı, `variadic templates`, `labmda expressions`
@@ -57,9 +56,9 @@ int main() {
 {% endhighlight %}
 
 Anlık hesaplama tekniğinde `multiply` fonksiyonu, verilen değerlerin çarpımını anlık olarak hesaplayarak geriye 6 değerini
-`tmp` değişkenine *5.* satırda eşitleyecektir. Sonra, hesapladığı geçici değişken ile diper çarpım işlemini gerçekleştirerek
+`tmp` değişkenine ***5.*** satırda eşitleyecektir. Sonra, hesapladığı geçici değişken ile diper çarpım işlemini gerçekleştirerek
 sonucunu `result` değişkenine atayacaktır. Konsola yazdırıldığı yere kadar hiç kullanılmamış olsa da hesaplanmış olan `result`
-değeri, uygulama içerisinde tutularak *8.* satırda kullanılacaktır.
+değeri, uygulama içerisinde tutularak ***8.*** satırda kullanılacaktır.
 
 ### Lazy Evaluation - Tembel Hesaplama Mimarisi
 
@@ -71,7 +70,7 @@ verilen işlemlerin bilgilerini tutan ara bir nesne olacaktı. Bu sayede sonucu 
 Yukarıdaki işlemleri tembel yaklaşımla yapmak için, çözüme sorundan başlayarak ilerleyelim ve ilk önce `multiply` fonksiyonumuzu
 tipten bağımsız ve geriye çarpım işlemlerini tutacak olan tembel sınıfı dönecek şekilde tekrar yazalım:
 
-```cpp
+{% highlight cpp %}
 template <typename T1, typename T2>
 struct lazy_t;                        // (1)
 
@@ -80,7 +79,7 @@ lazy_t<T1, T2> multiply(T1 x, T2 y)
 {
   return lazy_t<T1, T2>(x , y);       // (3)
 }
-```
+{% endhighlight %}
 
 1. `lazy_t` adını verdiğimiz, çarpım işlemlerini tutarak son ana kadar öteleyecek olan ara sınıfımızı tanımlayalım. Tembel hesaplama
 için kullanacağımız ana yapı bu sınıf olacak ve çarpım işlemlerini işlemleri sınıfımız üzerinden tamamlıyor olacağız
