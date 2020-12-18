@@ -9,10 +9,10 @@ comments: true
 readtime: true
 show-avatar: false
 language: tr
-tags: [C++, C++20, yazılım, ranges]
+tags: [C++, yazılım, templates, lazy]
 ---
 
-C++20 standartı ile gelen Range kütüphanesini sizlere aktardığım yazımda, kütüphanenin sahip olduğu
+C++20 standartı ile gelen [Range kütüphanesini](2020-12-17-cpp20-ranges) sizlere aktardığım yazımda, kütüphanenin sahip olduğu
 tembel hesaplama yaklaşımından ve dile kazandırdığı faydalardan bahsetmiştim. Range kütüphanesini
 tanıtırken teknik detaylara yer vermeden, sahip olduğu adaptörleri ve üreteçleri örnek kullanımları
 ile aktarmaya çalışmıştım. Ancak, tembel hesaplama tekniğini anlamadan, ranges kütüphanesini anlamak pek
@@ -43,17 +43,17 @@ olması sayesinde, bizlerin en sık tercih ettiği yöntem haline gelmiştir.
 Bu yöntem ile çarpım işlemi gerçekleştiren `int multiply(int x, int y)` fonksiyonunu yazmak istediğimizde, fonksiyonun yapısı
 aşağıdaki gibi olacaktır:
 
-{% highlight cpp linenos %}
-int multiply(int x, int y) { return x * y; }
-
-int main() {
-  int x = 2, y = 3;
-  int tmp = multiply(x, y);
-  int result = multiply(4, tmp);
-  // ... and many other calculations ...
- cout << "result: " << result << "\n";
-}
-{% endhighlight %}
+```cpp
+1. int multiply(int x, int y) { return x * y; }
+2.
+3. int main() {
+4.   int x = 2, y = 3;
+5.   int tmp = multiply(x, y);
+6.   int result = multiply(4, tmp);
+7.   // ... and many other calculations ...
+8.  cout << "result: " << result << "\n";
+9. }
+```
 
 Anlık hesaplama tekniğinde `multiply` fonksiyonu, verilen değerlerin çarpımını anlık olarak hesaplayarak geriye 6 değerini
 `tmp` değişkenine ***5.*** satırda eşitleyecektir. Sonra, hesapladığı geçici değişken ile diper çarpım işlemini gerçekleştirerek
@@ -70,7 +70,7 @@ verilen işlemlerin bilgilerini tutan ara bir nesne olacaktı. Bu sayede sonucu 
 Yukarıdaki işlemleri tembel yaklaşımla yapmak için, çözüme sorundan başlayarak ilerleyelim ve ilk önce `multiply` fonksiyonumuzu
 tipten bağımsız ve geriye çarpım işlemlerini tutacak olan tembel sınıfı dönecek şekilde tekrar yazalım:
 
-{% highlight cpp %}
+```cpp
 template <typename T1, typename T2>
 struct lazy_t;                        // (1)
 
@@ -79,7 +79,7 @@ lazy_t<T1, T2> multiply(T1 x, T2 y)
 {
   return lazy_t<T1, T2>(x , y);       // (3)
 }
-{% endhighlight %}
+```
 
 1. `lazy_t` adını verdiğimiz, çarpım işlemlerini tutarak son ana kadar öteleyecek olan ara sınıfımızı tanımlayalım. Tembel hesaplama
 için kullanacağımız ana yapı bu sınıf olacak ve çarpım işlemlerini işlemleri sınıfımız üzerinden tamamlıyor olacağız
@@ -221,49 +221,3 @@ int main()
   std::cout << "result of lazy operations: " << int(lazy_result) << "\n";
 }
 ```
-
-> Eager ve Lazy Evaluation nedir açıkla!
-
-~~[C++20 Ranges](medium.com/xxx) yazısında kısaca standart kütüphanede bulunan fonksiyonların yazıldığı yerde
-çalıştırıldığını, sonuçların bütün girdiler için o anda hesaplandığından bahsetmiştim. Algoritmaların kodlanması
-için en kolay yöntem olan bu yaklaşım, ufak ölçekli işlemler için bir sorun yaratmazken, veri setlerinin büyük
-olduğu durumlarda hem performans, hem de alan yönetimi anlamında sıkıntılara yol açabilmektedir. Tembel yaklaşımda
-ise, verilen operasyonlar bir ara sınıfta tutularak, sonuçların alınması gereken yere kadar bekletilirler. Aynı
-şekilde, sonuçların üretilmesi de, toplu olarak değil, sırayla bütün operasyonlar üzerinden hesaplanarak üretilirler.~~
-
-```cpp
-int main()
-{
-  std::vector<int> ints{ 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-  auto result = ints  
-    | std::views::filter([] (auto i) {
-        return i % 2 == 0;            // (2)
-      })  
-    | std::views::transform([] (auto i) {
-        return char('a' + (i % 29));  // (3)
-      });
-  std::cout << "even numbers with doubled: ";
-  for (auto x : result)
-  {
-    std::cout << x << ", ";           // (1)
-  }
-  std::cout << "\n";
-}
-```
-
-Yukarıdaki Ranges kütüphanesinin temel kullanımı için verilen örneğe baktığımızda, yapılan numaralandırmanın sırasının farklı
-olduğunu görmekteyiz. Bunu sebebi, kodun çalışma sırası ile numaralandırılmış olmasıdır; yani yukarıdaki kodda döngü içerisinde
-`x` değeri yazdırılmak istenene kadar `ints` listesi için herhangi bir işlem yapılmamaktadır. Döngü içerisinde i değerini almak
-için:
-
-1. Döngü her çalışmak istediğinde, `result` ara sınıfından `x` değişkeni için bir değer sormaktadır, bunun sonucunda eğer döngü
-bitmezse x değişkeni bu değer ile represente edilmektedir. `result` sınıfına sorulan her sorguda, ara sınıf tarafından tutulan
-işlemler o adım için işletilir ve sonucu döndürülür
-
-2. Bunu yaparken `ints` listesi için tanımladığımız bileşimdeki ilk operasyonun çalıştırılması gerekmektedir; ranges::filter
-içerisinde verdiğimiz lamdba fonksiyonu çağrılarak, filtreleme işlemi gerçekleştirilir. Burada filtre fonksiyonunu karşılayan
-değere kadar iterative bir şekilde kullanım söz konusudur.
-
-3. Filtreden geçen sıradaki eleman için, elemanın tuttuğu değerin alfabe içerisindeki harfi döndüren bir dönüşüm işlemi yapılır
-ve geriye `char` tipindeki sonuç döndürülür. Bu işlemin ardından döngü için adım tamamlanmış olacaktır.
