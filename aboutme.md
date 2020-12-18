@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Hakkkımda
+title: Hakkımda
 subtitle: Oğuzhan Katlı Kimdir?
 ---
 
