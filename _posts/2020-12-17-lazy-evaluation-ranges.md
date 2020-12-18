@@ -19,7 +19,7 @@ ile aktarmaya çalışmıştım. Ancak, tembel hesaplama tekniğini anlamadan, r
 mümkün olmayacağı için, sizlere biraz lazy evaluation kavramından bahsetmek ve range kütüphanesinin
 bunu nasıl sağladığını anlatmak istiyorum.
 
-![Expression Tempale Origin](../assets/img/expression_template_origin.png){: width=1383px height=525 .mx-auto.d-block :}
+![Expression Tempale Origin](../assets/img/expression_template_origin.png){: width="1383px" height="525px" }
 
 İlk olarak 1995 yılında [Expression Templates](https://en.wikipedia.org/wiki/Expression_templates) tekniği ile karşımıza çıkan tembel yaklaşım mimarisi, [Blaze](https://bitbucket.org/blaze-lib/blaze/src/master/), [Boost.UBlas](https://www.boost.org/doc/libs/1_75_0/libs/numeric/ublas/doc/index.html), [Blitz](https://github.com/blitzpp/blitz) gibi numerik hesaplamalar
 için geliştirilen kütüphanelerin çekirdek mimarisini oluşturmaktadır. Tembel yaklaşım ile hesaplama,
