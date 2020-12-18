@@ -1,7 +1,7 @@
 ---
 layout: post
-title: C++20 ile Gelen Yenilikler - Part I
-subtitle: C++20 Concepts Kütüphanesi
+title: C++ 20 ile Gelen Yenilikler - Part I
+subtitle: C++ 20 Concepts Kütüphanesi
 thumbnail-img: /assets/img/cpp20-timeline.png
 share-img: /assets/img/cpp20-timeline.png
 nav-short: true
