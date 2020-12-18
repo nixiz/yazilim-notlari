@@ -153,21 +153,6 @@ Yazdığımız kodları birleştirelim ve tembel hesaplama tekniğiyle bir çarp
 14. result of lazy operation: 6
 ```
 
-{% graphviz %}
-digraph {
-  node [shape=circle, style=filled];
-  S [fillcolor=green];
-  A [fillcolor=yellow];
-  B [fillcolor=yellow];
-  C [fillcolor=yellow];
-  D [shape=doublecircle, fillcolor=green];
-  S -> A [label=a];
-  S -> B [label=b];
-  A -> D [label=c];
-  B -> D [label=d];
-}
-{% endgraphviz %}
-
 Yukarıda yazdığımız kod başarıyla çalışacak ve `int result = lazy_x_y_z;` dediğimiz yerde çarpım işlemi
 gerçekleşerek sonucu `result` değişkenine atayacaktır. Fakat bunu yapabilmesi için son bir düzenlemeye daha
 ihtiyacımız var.  
