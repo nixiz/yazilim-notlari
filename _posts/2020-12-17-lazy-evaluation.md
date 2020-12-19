@@ -1,7 +1,7 @@
 ---
 layout: post
-title: Lazy Evaluation ile Ranges Kütüphanesi
-subtitle: Tembel Hesaplama Mimarisi ve Range Kütüphanesi
+title: Lazy Evaluation Mimarisi
+subtitle: Tembel Hesaplama Yapısı Nedir?
 thumbnail-img: /assets/img/matrix_multip_benchmark.png
 share-img: /assets/img/matrix_multip_benchmark.png
 nav-short: true
