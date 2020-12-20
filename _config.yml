@@ -91,7 +91,7 @@ feed_show_excerpt: true
 feed_show_tags: true
 
 # The keywords to associate with your website, for SEO purposes
-#keywords: "my,list,of,keywords"
+keywords: "C++,programlama,yazılım,C,cpp,template,gömülü"
 
 # --- Colours / background image --- #
 
@@ -129,10 +129,10 @@ footer-link-col: "#404040"
 # --- Web Analytics Section --- #
 
 # Fill in your Google Analytics gtag.js ID to track your website using gtag
-#gtag: ""
+gtag: "G-H2S23EEXJ9"
 
 # Fill in your Google Analytics ID to track your website using Google Analytics
-#google_analytics: ""
+google_analytics: "G-H2S23EEXJ9"
 
 # Google Tag Manager ID
 #gtm: ""
