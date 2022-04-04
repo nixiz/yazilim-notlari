@@ -17,8 +17,52 @@ C++20 standardıyla birlikte gelen dört büyük yenilikten bir tanesi de Corout
 ile gelen multithreading desteğiyle birlikte asenkron hesaplamalar farklı thread'ler üzerinden yapılabilirken, asenkron
 çağrının sonucunun alınması için iki farklı yöntem uygulanmaktadır.
 
-* Asenkron çağrıyı yapan fonksiyon, `promise` ve `future` nesnelerini kullanarak çağrının sonucunu beklemeden kendi
-  rutinini sonlandırarak onu çağıran döngünün devam etmesini sağlar.
+* Bu yöntemlerden en çok kullanılanı ve bilineni: Asenkron çağrının sonucunu almak için bir geri dönüş fonksiyonu
+ *Callback Function* tanımlanarak asenkron işlemin sonucu bu callback fonksiyon üzerinden kullanılır.
+ Bu yöntemde dikkat  edilmesi gereken nokta, asenkron işlemin çağırıldığı yerde beklenmeden devam edileceği için:
+ Asenkron çağrı tamamlanmadan ana rutinden çıkılır ve çağrıyı işleten nesneler silinmiş olursa, callback fonksiyonu
+ işletildiğinde tanımsız bir davranış oluşacaktır ve program hata vererek sonlanacaktır.
+
+  ```cpp  
+  struct connection_t {};
+
+  void when_connected(connection_t conn) 
+  { 
+    cout << "connection established : " << conn << "\n"; 
+  }
+
+  struct socket_t
+  {
+    // ...
+
+    template <typename CB>
+    void async_connect(CB&& cb_function)
+    {
+      std::this_thread::sleep_for(500ms);
+      std::invoke(cb_function, connection_t{ params });
+    }
+  };
+
+  int main()
+  {
+    // ...
+    io_context io_service;
+    socket_t socket{io_service};
+    socket.async_connect(when_connected);
+
+    // starts io service and waits until all jobs are done.
+    io_service.run();
+  }
+  ```
+  
+  > Yukarıdaki örnek [Boost Asio][boost-asio-async-echo-example] servisini baz alarak verilmiştir.
+  <!-- Bu yaklaşımda ise `main` fonksiyonunda yapılan asenkron çağrının sonucu ayrı bir fonksiyon üzerinden işletileceği
+  için, çağrı sonlanmadan programın sonlanmaması için bir aracı servisin kullanılması gerekmektedir. Aksi takdirde
+  program sonlandıktan sonra asenkron çağrının geri dönüş fonksiyonu işletilmeye çalışılacaktır ve en iyi ihtimalle
+  programın hata vermesiyle sonuçlanacaktır. -->
+
+* Bir diğer yöntem ise, asenkron çağrıyı yapan fonksiyon, sonucun beklenmesi için `future` nesnesi geriye dönürür ve
+  çağrıyı yapan taraf sonucu kullanmak istediği yerde bekleyecek şekilde rutinini devam ettirebilir.
 
   ```cpp  
   struct connection_t {};
@@ -41,7 +85,7 @@ ile gelen multithreading desteğiyle birlikte asenkron hesaplamalar farklı thre
     return ret;
   }
 
-  auto connect()
+  std::future<connection_t> async_connect()
   {
     // ... initialize connection params.
     return call_async([] (connection_params_t params) {
@@ -53,57 +97,25 @@ ile gelen multithreading desteğiyle birlikte asenkron hesaplamalar farklı thre
 
   int main()
   {
-    future<connection_t> conn_future = connect();
-    ret_future.wait();
+    // asenkron çağrı yapılır
+    auto conn_future = async_connect();
+
+    //sonuç beklenmeden rutin devam ettirilir
+    for (int i= 0; i < 100; i++) {
+      cout << "do other jobs\n";
+    }
+
+    // asenkron çağrının tamamlanması beklenir.
+    conn_future.wait();
+    // çağrının sonucu alınır ve conn kurulmuş mu kontrol edilir
     connection_t conn = conn_future.get();
-    // ... use connection 
+    // ... connection objesi kullanılır 
   }
   ```
 
   Yukarıdaki koda baktığımızda `connect` fonksiyonu içerisinde asenkron bir çağrı yapıyor ve işlemin sonucunu beklemeden
   fonksiyondan çıkarak döngüsünü sonlandırıyor. Bu noktada `connect` fonksiyonunu çağıran üst fonksiyon asenkron
   çağrının sonucunu beklemeli ve sonuç alındıktan sonra kaldığı yerden devam etmelidir.
-
-* Bir diğer yöntem ise, asenkron çağrıya, sonucu bildirmesi için bir bildirim fonksiyonu *Callback Function* tanımlanır
-  ve asenkron çağrının sonucu callback fonksiyon üzerinden işletilir.
-
-  ```cpp  
-  struct connection_t {};
-
-  void when_connected(connection_t conn) { /*...*/ }
-
-  struct socket_t
-  {
-    // ...
-
-    template <typename CB>
-    void async_connect(CB&& cb_function)
-    {
-      std::this_thread::sleep_for(500ms);
-      std::invoke(cb_function, connection_t{ params });
-    }
-  };
-
-  int main()
-  {
-    // ...
-    io_context io_service;
-    socket_t socket{io_service};
-    socket.async_connect([&](auto conn) 
-    {
-      cout << "connection established : " << conn << "\n";
-    });
-
-    // starts io service and waits until all jobs are done.
-    io_service.run();
-  }
-  ```
-
-  Bu yaklaşımda ise `main` fonksiyonunda yapılan asenkron çağrının sonucu ayrı bir fonksiyon üzerinden işletileceği
-  için, çağrı sonlanmadan programın sonlanmaması için bir aracı servisin kullanılması gerekmektedir. Aksi takdirde
-  program sonlandıktan sonra asenkron çağrının geri dönüş fonksiyonu işletilmeye çalışılacaktır ve en iyi ihtimalle
-  programın hata vermesiyle sonuçlanacaktır.
-  > Yukarıdaki örnek [Boost Asio][boost-asio-async-echo-example] servisini baz alarak verilmiştir.
 
 ****
 

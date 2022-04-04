@@ -45,10 +45,13 @@ public:
 };
 ```
 
-In most observer pattern implementations has subscriptions are done in runtime. But this has to be done where it is not
-clear which class will subscribe and when. However, in most of time observer classes are known during the development
-process. Therefore having a runtime dependency for observer registration and having lists are not useful for most of
-observer pattern implementations.  
+In most observer pattern implementations has subscriptions where they have done in runtime. But this has to be done
+where it is not clear which class will subscribe and when. However, in most of time observer classes are known during
+the development process. Therefore having a runtime dependency for observer registration and having lists are not
+necessary for most of observer pattern implementations.  
+
+Ass we all know C++ is 
+
 The solution is using compile time 
 
 
