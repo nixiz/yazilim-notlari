@@ -11,7 +11,7 @@ show-avatar: false
 language: tr
 tags: [C++, C++20, yazılım, coroutines]
 ---
-![C++ Road Map](../assets/img/cpp20-timeline.png){: .mx-auto.d-block :}
+![C++ Road Map](/yazilim-notlari/assets/img/cpp20-timeline.png){: .mx-auto.d-block :}
 
 C++20 standardıyla birlikte gelen dört büyük yenilikten bir tanesi de Coroutines özelliklerinin gelmesidir. Modern C++
 ile gelen multithreading desteğiyle birlikte asenkron hesaplamalar farklı thread'ler üzerinden yapılabilirken, asenkron
@@ -124,7 +124,7 @@ Modern C++ ile gelen multithreading desteğiyle birlikte asenkron hesaplama yete
 içerisinde eşzamanlı olarak işlem yapabilme imkanı C++20 standardıyla gelen coroutines güncellemesine kadar mümkün
 değildi.
 
-![routine subroutie](../assets/img/func-routine.png)
+![routine subroutie](/yazilim-notlari/assets/img/func-routine.png)
 <div style="text-align:center; font-size: smaller; margin: -13px 0 10px 0;">Image Description</div>
 
 C++ gibi prosedürel *([imperative][wiki-imperative])* diller tarafından yazılan kodların çalıştırılmasındaki girdi
@@ -187,7 +187,7 @@ etme imkanı kazandırılmasıdır. C++20 standardıyla birlikte gelen coroutine
 
 | A coroutine is a generalisation of a function that allows the function to be suspended and then later resumed. [^1]
 
-![routine subroutie](../assets/img/func-coroutine.png)
+![routine subroutie](/yazilim-notlari/assets/img/func-coroutine.png)
 <div style="text-align:center; font-size: smaller; margin: -13px 0 10px 0;">Image Description</div>
 
 C++ içerisinde tanımlanan `co_yield`, `co_await` ve `co_return` operatörleri kullanılarak bir fonksiyonun coroutine
