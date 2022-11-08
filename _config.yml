@@ -24,7 +24,7 @@ navbar-links:
   Repolar: "https://github.com/nixiz"
   C++ Türkiye:
     - Slack: "https://trcpp.slack.com"
-    - Telegram: "https://t.me/trcpp"
+    - Telegram: "https://t.me/+h3vaQkDA6D02M2Fk"
     - YouTube: "https://www.youtube.com/c/TurkeyCpp"
     - Web: "https://trcpp.org/"
 
@@ -43,7 +43,6 @@ round-avatar: true
 # then specify the following parameter
 #title-img: /path/to/image
 
-
 #####################################
 # --- Footer social media links --- #
 #####################################
@@ -52,14 +51,14 @@ round-avatar: true
 # Uncomment the links you want to show and add your information to each one.
 social-network-links:
   email: "oguzhankatli@gmail.com"
-  rss: true  # remove this line if you don't want to show an RSS link at the bottom
+  rss: true # remove this line if you don't want to show an RSS link at the bottom
   # facebook: deanattali
   github: nixiz
   twitter: oguzhankatli
   # patreon: DeanAttali
   # youtube: c/daattali
   medium: oguzhankatli
-#  reddit: yourname
+  #  reddit: yourname
   linkedin: ogzhnktl
 #  xing: yourname
 #  stackoverflow: "3943160/daattali"
@@ -75,7 +74,7 @@ social-network-links:
 #  mastodon: instance.url/@username
 #  ORCID: your ORCID ID
 #  google-scholar: your google scholar
-#  discord: invite/invite_code or users/userid 
+#  discord: invite/invite_code or users/userid
 #  kaggle: yourname
 #  hackerrank: yourname
 
@@ -205,23 +204,23 @@ google_analytics: "G-H2S23EEXJ9"
 #  label: blog-comments # Label that will be assigned to GitHub Issues created by Utterances
 
 # To use Staticman comments, uncomment the following section. You may leave the reCaptcha
-# section commented if you aren't using reCaptcha for spam protection. 
-# Using Staticman requires advanced knowledge, please consult 
-# https://github.com/eduardoboucas/staticman/ and https://staticman.net/ for further 
-# instructions. For any support with staticman please direct questions to staticman and 
+# section commented if you aren't using reCaptcha for spam protection.
+# Using Staticman requires advanced knowledge, please consult
+# https://github.com/eduardoboucas/staticman/ and https://staticman.net/ for further
+# instructions. For any support with staticman please direct questions to staticman and
 # not to BeautifulJekyll.
 #staticman:
 #  repository : # GitHub username/repository eg. "daattali/beautiful-jekyll"
 #  branch     : master # If you're not using `master` branch, then you also need to update the `branch` parameter in `staticman.yml`
 #  endpoint   : # URL of your deployment, with a trailing slash eg. "https://<your-api>/v3/entry/github/"
-#  reCaptcha:   # (optional, set these parameters in `staticman.yml` as well) 
+#  reCaptcha:   # (optional, set these parameters in `staticman.yml` as well)
 #    siteKey  : # You need to apply for a site key on Google
 #    secret   : # Encrypt your password by going to https://<your-own-api>/v3/encrypt/<your-site-secret>
 
 # To use giscus comments:
-# (0) Uncomment the following giscus section, (1) Enable Discussions in your GitHub repository, 
+# (0) Uncomment the following giscus section, (1) Enable Discussions in your GitHub repository,
 # (2) Install the giscus app in your repository (details at https://giscus.app),
-# (3) Fill in *all* the parameters below 
+# (3) Fill in *all* the parameters below
 # See more details about giscus and each of the following parameters at https://giscus.app
 #giscus:
 #  hostname: giscus.app # Replace with your giscus instance's hostname if self-hosting
@@ -260,16 +259,14 @@ kramdown:
 
 # Default YAML values (more information on Jekyll's site)
 defaults:
-  -
-    scope:
+  - scope:
       path: ""
       type: "posts"
     values:
       layout: "post"
-      comments: true  # add comments to all blog posts
+      comments: true # add comments to all blog posts
       social-share: true # add social media sharing buttons to all blog posts
-  -
-    scope:
+  - scope:
       path: "" # any file that's not a post will be a "page" layout by default
     values:
       layout: "page"
@@ -289,7 +286,6 @@ plugins:
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-diagrams
-
 # Beautiful Jekyll / Dean Attali
 # 2fc73a3a967e97599c9763d05e564189
 
