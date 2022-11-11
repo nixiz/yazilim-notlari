@@ -68,7 +68,11 @@ void unsafe_service::execute() {
 }
 ```
 
-Yukarıdaki koda [buradan][godbolt-1] ulaşabilirsiniz.
+{: .box-note}
+**Note:** Yukarıdaki kodun tamamına [buradan][godbolt-1] ulaşabilirsiniz.
+
+Peki üzerinde çalıştığımız servis sınıfının nasıl yaratılacağını değiştiremediğimiz durumlarda ne yapmalıyız. Ayrıca sadece bir sınıf için değil,
+asenkron çağrı yapan diğer bütün sınıflarımız için de bu değişiklikleri yapmamız gerekiyor. Bunun yerine 
 
 
 `enable_shared_from_this<unsafe_service>` sınıfı, `shared_ptr<unsafe_service>` olarak yaratılan servis objesinin bir [*zayıf kopyasını*][weak-ptr-link] tutar ve 
