@@ -137,15 +137,14 @@ private:
 };
 ```
 
-Yukarıda yazdığımız örnek koda tekrar bakacak olursak, asenkron çağrıya servis sınıfının kendisi yerine
-`async_callback_token` ismini verdiğimiz ara bir nesnenin gönderildiğini göreceğiz. Bu ara sınıf sayesinde, servis objesinin güvenli bir şekilde yaşayıp yaşamadığını kontrol edebiliyor, asenkron çağrının cevabının işlendiği fonksiyonda uygulamayı çakılmalardan koruyabiliyoruz. Aynı sınıfı yeni yazdığımız `async_call_helper` sınıfı içerisinde de kullanıyor olacağız. Bunun için `get_context()` fonksiyonu içerisinde bu sınıfını dönecek, asenkron çağrı cevaplarında güvenli bir şekilde servis sınıfımıza erişebileceğiz. Erişemediğimiz durumlar için istediğimizi yapma imkanına sahip olacağız.
+Yukarıda yazdığımız örnek koda tekrar bakacak olursak, asenkron çağrıya servis sınıfının kendisi yerine `async_callback_token` ismini verdiğimiz ara bir nesnenin gönderildiğini göreceğiz. Bu ara sınıf sayesinde, servis objesinin güvenli bir şekilde yaşayıp yaşamadığını kontrol edebiliyor, asenkron çağrının cevabının işlendiği fonksiyonda uygulamayı çakılmalardan koruyabiliyoruz. Aynı sınıfı, yeni yazdığımız `async_call_helper` sınıfı içerisinde de kullanıyor olacağız. `get_context()` fonksiyonu, bu ara sınıfı geri dönecek.
 
 ```cpp
 template <typename Caller>
 class async_call_helper
 {
 public:
-  void* get_context() const;
+  async_callback_token* get_context() const;
   // ...
 private:
   struct auto_ref_holder
@@ -156,13 +155,20 @@ private:
 };
 ```
 
-Asenkron çağrılara verilecek `context` objesi, içerisinde `auto_ref_holder` sınıfının bir weak referansını tutacak, çağrı cevabı işleneceği zaman da bu referans üzerinden ilk önce `async_call_helper` sınıfı, onun üzerinden de servis sınıfına erişim sağlanabilecek.
+Asenkron çağrının cevabı `response_cb` fonksiyonunu çağırdığında, `context` nesnesini ilk önce asenkron çağrıyı yaparken kullandığımız `asyn_call_token` nesnesine çevirecek, buradan da `get_caller()` sanal metodunu çağırarak servis objemizin referansına veya eğer bu obje silinmiş ise `nullptr` değişkenine erişebileceğiz. Bu sayede, uygulamada bir çakılmaya neden olmadan güvenli bir döngüye sahip olacağız.
 
 ```cpp
 struct asyn_call_token
 {
   virtual ~asyn_call_token() = default;
-  template <typename Cast> static Cast* from_context(void* context) noexcept;
+  template <typename Cast> 
+  static Cast* from_context(void* context) noexcept
+  {
+    std::unique_ptr<asyn_call_token> handle(
+      reinterpret_cast<asyn_call_token*>(context));
+    auto *cast_ptr = static_cast<Cast*>(handle->get_caller());
+    return cast_ptr;    
+  }
 protected:
   virtual void* get_caller() = 0;
 };
@@ -188,9 +194,13 @@ static inline void response_cb(void* context, int out_param) {
 }
 ```
 
-Asenkron çağrı tarafından `response_cb` fonksiyonu çağrıldığında, artık `safe_service` nesnesine `context` üzerinden güvenli bir şekilde erişebiliyoruz. Bunu yaparken de `safe_service` sınıfımız içerisnde minimum değişiklik yapmamız yetiyor. Tabi şu ana kadar sadece iskelet kodu gerçekleştirdik, fonksiyonların içerisini doldurmak için yazının devamını okuyabilir; veya bana bu kadarı yetti, ben konuyu anladım sadece koda erişsem de olur diyorsanız [buradan](https://github.com/nixiz/async-call-helper) projenin son haline direk erişebilirsiniz.
+Yukarıda asenkron çağrının cevabında kullanılacak `context` objesinin nasıl kullanılacağını yazmış olduk. Yazdığımız kodu çalışır hale getirmek için hala `get_context()` metodunun içerisini doldurmamız gerekiyor. Bu metoddan dönecek kontekst objesi, içerisinde `auto_ref_holder` sınıfının bir weak referansını tutacak, asenkron cevap işleneceği zaman da bu referans üzerinden ilk önce `async_call_helper` sınıfı, onun üzerinden de servis sınıfına erişim sağlayabilecek. `get_context()` metodu içerisinde dönecek bu "özel" sınıf, `async_call_helper` sınıfı türünden olacağı için, `void* get_caller()` metodunu gerçekleştiriyor olması gerekiyor.
 
-Gelelim asıl alengirli yerlere. Eminim ki, `asyn_call_token` sınıfının soyut sınıf olarak kullanıldığını çoktan farkettiniz. Bunun sebebi, ileride asenkron çağrıların cevaplarını işlerken birden fazla farklı özellikte çağrı kontekstlerinin olabilme ihtimali ve `async_call_helper` sınıfının lambda ve fonksiyon pointer'ları için farklı bir `get_context()` fonksiyonuna sahip olmasıdır. Yazımda bahsettiğim örnek ile devam edelim ve C stilinde asenkron çağrılarda kullanılmak üzere çağrılacak `get_context()` fonksiyonunu yazalım:
+Bunu yaparken de `safe_service` sınıfımız içerisinde minimum değişiklik yapmamız yetecek. `get_context()` metodunun içerisini geliştirerek yazımıza devam edelim:
+
+
+{: .box-note}
+**Note:** `asyn_call_token` sınıfının polimorfik olması sayesinde, ileride asenkron çağrıların cevaplarını işlerken birden fazla farklı özellikte çağrı kontekstlerinin olabilme ihtimali ve `async_call_helper` sınıfının lambda ve fonksiyon pointer'ları için farklı bir `get_context()` fonksiyonuna sahip olmasıdır.
 
 ```cpp
 template <typename Caller>
@@ -233,9 +243,14 @@ private:
 };
 ```
 
+
+
+
 `get_context()` fonksiyonu, `asyn_call_token` türünden olan kendine özgü bir sınıf kullanarak, C asenkron çağrılarında kullanılmak üzere bir kontekst objesi yaratarak geri döndürmektedir. Asenkron çağrı sonuçlandığında çalıştırılacak geri bildirim fonksiyonu, `asyn_call_token` sınıfının `get_caller()` fonksiyonu üzerinden asıl servis objesine erişebilecektir. Servis objesi silindikten sonra `get_caller()` metodu çağrıldığında ise, `special_token` metod `nullptr` dönerek sistemin güvenli bir şekilde referans kontrolü yapmasına imkan sağlayacaktır.
 
 
+
+Tabi şu ana kadar sadece iskelet kodu gerçekleştirdik, fonksiyonların içerisini doldurmak için yazının devamını okuyabilir; veya bana bu kadarı yetti, ben konuyu anladım sadece koda erişsem de olur diyorsanız [buradan](https://github.com/nixiz/async-call-helper) projenin son haline direk erişebilirsiniz.
 
 
 
