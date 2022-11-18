@@ -448,7 +448,7 @@ private:
 
 ---
 
-[godbolt-1]: https://godbolt.org/z/jfx5E73f4
+[godbolt-1]: https://gist.github.com/nixiz/0055fefdc2b936b8f9ab6594b57a3abe
 [shared-ptr-link]: https://en.cppreference.com/w/cpp/memory/shared_ptr
 [weak-ptr-link]: https://en.cppreference.com/w/cpp/memory/weak_ptr
 [solid-link-wiki]: https://en.wikipedia.org/wiki/SOLID
