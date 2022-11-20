@@ -9,6 +9,8 @@ comments: true
 readtime: true
 show-avatar: false
 language: tr
+gh-repo: nixiz/async-call-helper
+gh-badge: [star, follow]
 tags: [C++, templates, async, callback, modern-cpp, OOP]
 ---
 
