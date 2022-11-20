@@ -11,12 +11,12 @@ show-avatar: false
 language: tr
 tags: [C++, templates, async, callback, modern-cpp, OOP]
 ---
-<!-- buraya gif olsa guzel olur -->
-![C++ Road Map](/yazilim-notlari/assets/img/async_cb_banner.png){: .mx-auto.d-block :}
 
 C ve C++ dillerinin ortak kullanıldığı projelerde, özellikle asenkron çağrıların yapıldığı yerler başta olmak üzere bir
 çok noktada nesnelerin ömürlerinin yönetilmesi zor ve sorunlu olabilmektedir. Bunun sebebi, asenkron çağrıların
 yapıldığı yerlerde, geribildirimin yapılacağı nesnelerin yaşam sürelerinin otomatik olarak uzatılmıyor olmasıdır.
+
+![C++ Road Map](/yazilim-notlari/assets/img/async_cb_banner.png){: .mx-auto.d-block :}
 
 Örneğin, aşağıdaki koda baktığımız zaman, C kütüphanesindeki bir asenkron çağrıyı yapan `service` objesinin asenkron
 çağrı sonuçlanmadan hafızadan silinmesi durumunda, çağrının geribildiriminde kendisinin silinip silinmediğini anlaması
