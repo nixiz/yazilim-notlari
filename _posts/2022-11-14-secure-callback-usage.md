@@ -302,7 +302,7 @@ Yukarıda statik olarak tanımlanan `callback_handle` fonksiyonu, asenkron çağ
 
 Bütün bu geliştirmeler sonrasında, asenkron çağrılarımıza verdiğimiz geri bildirim fonksiyonları, çağrıyı yapan nesnenin doğruluğunu kontrol ederek, hem güvenli bir şekilde uygulamanın çakılmasını önlerken, hem de daha modern bir yapıya sahip olmaktayız. Yazdığımız kodları birleştirirsek kodumuzun son hali aşağıdaki gibi olacaktır:
 
-{: .box-success}
+{: .box-note}
 Örnek kodlara ve projenin son haline [GitHub](https://github.com/nixiz/async-call-helper) sayfası üzerinden erişebilirsiniz.
 
 ```cpp
