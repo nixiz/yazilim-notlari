@@ -14,11 +14,11 @@ gh-badge: [star, follow]
 tags: [C++, templates, async, callback, modern-cpp, OOP]
 ---
 
-In projects where C and C++ languages are used together, it can be difficult and problematic to manage the lifetime of objects at many points, especially where asynchronous calls are made between both places. This is because, the lifetime of objects in C and C++ are not automatically extended.
+In projects where both C and C++ are used, especially in places where asynchronous calls are made, managing the lifetimes of objects can be challenging and error-prone. This is because, in places where asynchronous calls are made, the lifetimes of objects that will receive the feedback are not automatically extended.
 
 ![C++ Road Map](/yazilim-notlari/assets/img/async_cb_banner.png){: .mx-auto.d-block :}
 
-For example, given the code below, it's impossible to tell if the 'service' instance has been deleted. The application will crash because the "unsafe_service" object tried to be accessed in the 3rd line below is deleted before the `response_cb` is called by the async function.
+For example, when we look at the code below, if the `service` object, which makes an asynchronous call in the C library, is removed from memory before the asynchronous call is completed, it is impossible for it to know whether it has been deleted when receiving the call's feedback. Since the `unsafe_service` object accessed in line 3 has already been deleted, the application will crash.
 
 ```cpp
 1. static inline void response_cb(void* context, int response) {
@@ -32,15 +32,9 @@ For example, given the code below, it's impossible to tell if the 'service' inst
 9. }
 ```
 
-### Using the std::enable_shared_from_this&lt;T&gt;
+### Usage of `std::enable_shared_from_this<T>`
 
-In order to solve the problem encountered in the above example, we have to know whether the `service` object has been deleted inside the `response_cb` function. By inheriting the `unsafe_service` class from the [`std::enable_shared_from_this<unsafe_service>`][enable-shared-this-link] helper and use its [`weak_ptr`][weak-ptr-link] reference, we will be able to get information about whether the `unsafe_service` instance is still alive in the callback function. To make this, the `service` object has to be created as a [`shared_ptr<unsafe_service>`][shared-ptr-link]
-
-
-In order to solve the problem encountered in the above example, the `unsafe_service` class must derive from the `std::enable_shared_from_this<unsafe_service>` helper class and the class must be created and used from the type `shared_ptr<unsafe_service>`.
-It will not be enough to do just that, it also needs to send another helper object to the asynchronous call instead of its own reference directly, in which the reference `weak_ptr` is kept. In this way, when the response of the asynchronous call is received, the context argument will be converted to this helper object type and it will be possible to check whether the service object is alive by using the `weak_ptr<unsafe_service>` inside.
-
-Yukarıdaki örnekte karşılaşılan sorunu çözebilmek için `unsafe_service` sınıfının [`std::enable_shared_from_this<unsafe_service>`][enable-shared-this-link] yardımcı sınıfından türemesi ve sınıfın [`shared_ptr<unsafe_service>`][shared-ptr-link] türünden yaratılarak, kullanılıyor olması gerekmektedir. Sadece bunu yapması da yetmeyecektir, bir de asenkron çağrıya direkt olarak kendi referansı yerine, içerisinde [`weak_ptr`][weak-ptr-link] referansının tutulduğu başka bir yardımcı nesne göndermesi de gerekmektedir. Bu sayede asenkron çağrının cevabı alındığında, context argümanı bu yardımcı nesne türüne dönüştürülecek ve içerisindeki [`weak_ptr<unsafe_service>`][weak-ptr-link] kullanılarak servis objesinin yaşayıp yaşamadığı kontrol edilebilecektir.
+To solve the problem encountered in the example above, the `unsafe_service` class should derive from the [`std::enable_shared_from_this<unsafe_service>`][enable-shared-this-link] helper class and should be created as a [`shared_ptr<unsafe_service>`][shared-ptr-link] type object. However, this is not enough; another auxiliary object that holds a [`weak_ptr`][weak-ptr-link] reference should also be sent instead of its own reference to the asynchronous call. This way, when the response to the asynchronous call is received, the context argument will be converted to this auxiliary object type, and the [`weak_ptr<unsafe_service>`][weak-ptr-link] inside it will be used to check whether the service object is alive or not.
 
 ```cpp
 class unsafe_service 
@@ -72,26 +66,22 @@ void unsafe_service::execute() {
 }
 ```
 
-{: .box-note}
-**Note:** Yukarıdaki kodun tamamına [buradan][godbolt-1] ulaşabilirsiniz.
+**Note:** You can access the full code for the above example [here][godbolt-1].
 
-Bulmuş olduğumuz çözüm çalışıyor ancak, öncelikle geliştirilen sınıf üzerinde değişiklikler yapılmasını ve
-yöntemi kullanmak isteyen sınıfların yaşam döngülerinin [`shared_ptr<T>`][shared-ptr-link] türünden yaratılarak yönetilmesini gerektiriyor.
-Üzerinde çalıştığımız sınıfları biz geliştiriyor olsak bile, kullanım şekillerini değiştirmemiz pek mümkün olmayabiliyor. Örneğin bir Framework kullanıyorsak ve bu framework `service` sınıfını nasıl yaratıyorsa, biz de o şekilde kullanmak zorundayız. Ayrıca, asenkron çağrılar yapan her sınıf için aynı yöntemi tekrar tekrar uyguluyor olmak, hem zor hem de [SOLID][solid-link-wiki]
-prensiplerine aykırı olacaktır.
+The solution we found works, but it requires changes to the class being developed and requires the management of the lifetimes of the classes that want to use this method using [`shared_ptr<T>`][shared-ptr-link], even if we are developing the classes ourselves. If we are using a framework that creates the `service` class as the framework wants, we have to use it in the same way. Moreover, applying the same method repeatedly for classes that make asynchronous calls is not in line with the [SOLID][solid-link-wiki] principles and can be both difficult and impractical.
 
-Bunun yerine, asenkron çağrı yapan sınıfların otomatik olarak asenkron çağrı cevaplarını işleyebiliyor olması, en önemlisi de çağrı yapan nesnelerin sistemden silindiği durumlarda uygulamanın çakılmasına sebep vermeyecek güvenli bir yapının kullanılması çok daha doğru bir yaklaşım olacaktır.
+Instead, it would be a better approach to have classes that make asynchronous calls automatically handle asynchronous call responses and, most importantly, use a safe structure that does not crash the application when calling objects are removed from the system.
 
-### `async_call_helper` Sınıfının Geliştirilmesi
+### Improving the `async_call_helper` Class
 
-Yukarıda sorunu tanımladık, çözüm için basit bir geliştirme de yaptık. Geliştirdiğimiz örnek üzerinden genel bir çözüm üretebilmek için gereksinimlerimizi belirleyebiliriz. Geliştireceğimiz asenkron çağrı yardımcı sınıfımız en az aşağıdaki özelliklere sahip olmalıdır:
+In the previous section, we identified the problem and made a simple improvement to the `unsafe_service` class. To generate a general solution from the example we developed, we can determine our requirements. Our asynchronous call helper class should have at least the following features:
 
-* kullanılacak sınıfın yaratılma şeklini veya yaşam süresini **değiştirmemeli**
-* kullanılacak sınıf üzerinde/içerisinde en az değişikliğe sebep olmalı
-* kullanılan sınıf nesnesi sistemden silindiği taktirde, asenkron çağrı cevapları uygulamanın çakılmasına sebep olmamalı
-* **bonus:** asenkron çağrı cevapları tercihen [`lambda`][lambda-link] veya [`bind`][bind-link] gibi fonksiyon belirteçleri üzerinden işlenebilmeli
+* It should not change how the class to be used is created or its lifetime is managed.
+* It should introduce minimal or no changes to the class to be used.
+* It should not cause the application to crash when calling objects are deleted.
+* **Bonus:** Asynchronous call responses should preferably be processed using function pointers such as [`lambda`][lambda-link] or [`bind`][bind-link].
 
-`async_call_helper` sınıfımızı, yukarıda belirtilen gereksinimleri karşılayacak şekilde geliştirmeye başlayalım. Öncelikle, sınıfın nasıl kullanılacağına karar vermemiz gerekiyor. Bu arayüzü kullanacak sınıfların, tanımladığımız özelliklere erişiminin doğal gözüküyor olmasını sağlamak amacıyla `async_call_helper` sınıfının kalıtım ile kullanılması uygun olacaktır. Aynı zamanda, servis sınıflarının türüne ve referansına erişebilmesi için de `async_call_helper` sınıfının [CRTP][crtp-link] tekniğini de kullanması gerekecektir.
+To achieve this, our `async_call_helper` class should be inherited with the help of the [CRTP][crtp-link] technique, so that classes using this interface have natural access to the properties we defined. At the same time, the `async_call_helper` class should also use the [CRTP][crtp-link] technique to access the type and reference of the service class so that it can be accessed when needed.
 
 ```cpp
 template <typename Caller>
@@ -113,8 +103,7 @@ void safe_service::execute() {
 }
 ```
 
-[CRTP][crtp-link] tekniğinin kullanımı sayesinde, `safe_service` sınıfı `get_context()` metodunu kendi metoduymuş gibi kullanabilirken, `async_call_helper` sınıfı ise `safe_service` referansına istediği zaman erişebilmektedir.
-Sınıfımızı geliştirmeye devam edelim. Örnek çözümümüzde de kullandığımız [`shared_ptr`][shared-ptr-link] ve [`weak_ptr`][weak-ptr-link] ikilisine burada da ihtiyacımız var. `async_call_helper` sınıfını kullanacak sınıfların nasıl yaratılacağını değiştiremeyeceğimiz için, `async_call_helper` sınıfı içerisinde bir [`shared_ptr`][shared-ptr-link] nesnesine ihtiyacımız var.
+The use of [CRTP][crtp-link] allows the `safe_service` class to use the `get_context()` method as if it were its own, while the `async_call_helper` class can access the reference of the `safe_service` class when needed. We continue to improve our class. In our example, we also used [`shared_ptr`][shared-ptr-link] and [`weak_ptr`][weak-ptr-link] pairs that we need here. Since we cannot change how the classes that use the `async_call_helper` class are created, the `async_call_helper` class itself needs a [`shared_ptr`][shared-ptr-link] object.
 
 ```cpp
 template <typename Caller>
@@ -131,10 +120,9 @@ private:
 };
 ```
 
-{: .box-note}
-**Note:** `auto_ref_holder` sınıfının `shared_ptr` olarak yaratılıp, kullanılıyor olması `async_call_helper` tarafından gerçekleştiği için, `std::enable_shared_from_this<auto_ref_holder>` sınıfından türemesine gerek yoktur.
+**Note:** The `auto_ref_holder` class does not need to inherit from `std::enable_shared_from_this<auto_ref_holder>` since it is created and used by the `async_call_helper` class.
 
-Yukarıda yazdığımız örnek koda tekrar bakacak olursak, asenkron çağrıya servis sınıfının kendisi yerine `async_callback_token` ismini verdiğimiz ara bir nesnenin gönderildiğini göreceğiz. Bu yardımcı sınıf sayesinde, servis objesinin güvenli bir şekilde yaşayıp yaşamadığını kontrol edebiliyor, asenkron çağrının cevabının işlendiği fonksiyonda uygulamayı çakılmalardan koruyabiliyoruz. Aynı sınıfı, yeni yazdığımız `async_call_helper` sınıfı içerisinde de kullanmalıyız. `get_context()` fonksiyonu, bu yardımcı sınıfı geri dönüyor olacak.
+If we look again at the example code we wrote above, we will see that an auxiliary object named `async_callback_token` is sent instead of the service object itself to receive the response of the asynchronous call. With this auxiliary class, we can safely check whether the service object is alive when the response of the call is received and prevent the application from crashing. We should also use the same class inside the `async_call_helper` class we just wrote. The `get_context()` method should return this auxiliary class, and the `response_cb` function should be able to use it.
 
 ```cpp
 template <typename Caller>
@@ -146,318 +134,34 @@ public:
 };
 ```
 
-Asenkron çağrı, `response_cb(void *context, ...)` fonksiyonunu çağırdığında, `context` nesnesi aslında `asyn_call_token` nesnesini barındıracağından, ilk olarak `asyn_call_token` nesnesine dönüşümünü yapacağız. Sonra, bu sınıfın `get_caller()` sanal metodunu çağırarak servis objemizin referansına, ya da eğer bu obje silinmiş ise `nullptr` değişkenine erişebileceğiz. Bu sayede, uygulamada bir çakılmaya neden olmadan güvenli bir şekilde çalıştırabileceğimiz döngüye sahip olacağız.
+When the asynchronous call invokes the `response_cb(void *context, ...)` function, the `context` object is actually an `async_call_token` object. First, we will perform the conversion to this type of object. Then, when calling the function that processes the response of the asynchronous call, we will use the `weak_ptr` reference inside it to check whether the service object
 
-```cpp
-struct asyn_call_token
-{
-  virtual ~asyn_call_token() = default;
-  template <typename Cast> 
-  static Cast* from_context(void* context) noexcept
-  {
-    std::unique_ptr<asyn_call_token> handle(
-      reinterpret_cast<asyn_call_token*>(context));
-    auto *cast_ptr = static_cast<Cast*>(handle->get_caller());
-    return cast_ptr;    
-  }
-protected:
-  virtual void* get_caller() = 0;
-};
-
-static inline void response_cb(void* context, int out_param) {
-  auto srv_ptr = asyn_call_token::from_context<safe_service>(context);
-  if (srv_ptr) {
-    srv_ptr->response(out_param);
-  } else {
-    std::cerr << "service instance has already been deleted\n";
-  }
-}
-```
-
-Yukarıda asenkron çağrının cevabında kullanılacak `context` objesinin nasıl kullanılacağını yazmış olduk. Yazdığımız kodu çalışır hale getirmek için hala `get_context()` metodunun içerisini doldurmamız gerekiyor. Bu metoddan dönecek `asyn_call_token` objesi, içerisinde `auto_ref_holder` sınıfının bir zayıf referansını tutarak, `get_context()` metodu çağırıldığı zaman geriye servis sınıfının referansını, ya da silinmiş ise `nullptr` değerini döndürüyor olmalı.
+ is still alive.
 
 ```cpp
 template <typename Caller>
 class async_call_helper
 {
 public:
-  async_call_helper() {
-    lifetime_ref = std::make_shared<auto_ref_holder>(
-      static_cast<Caller*>(this));
-  }
-
-  void* get_context() const 
-  {
-    struct special_token final : public asyn_call_token
-    {
-      special_token(std::weak_ptr<auto_ref_holder> ref_) 
-        : ref(ref_) {}
-      ~special_token() = default;
-
-      void* get_caller() override {
-        auto sref = ref.lock();
-        return (sref) ? sref->get_parent() : nullptr;
-      }
-    private:
-      std::weak_ptr<auto_ref_holder> ref;
-    };
-    return new special_token(weak_ref());
-  }
-  // ...
-private:
-  struct auto_ref_holder
-    : public std::enable_shared_from_this<auto_ref_holder> {
-    explicit auto_ref_holder(Caller* caller_) : caller(caller_) {}
-    Caller* get_parent() { return caller; }
-  };
-  std::weak_ptr<auto_ref_holder> weak_ref() const noexcept {
-    return lifetime_ref;
-  }
-  std::shared_ptr<auto_ref_holder> lifetime_ref;
-};
-```
-
-{: .box-note}
-**Note:** `asyn_call_token` sınıfının polimorfik olması sayesinde, ileride ihtiyaca göre farklı gereksinimleri de karşılayabilir bir yapı kurmuş olduk. Örneğin ileride asenkron çağrılarımıza zaman aşımı sayaçları ekleyebiliriz; çağrı X sn boyunca cevaplanmazsa, zaman aşımı geribildirimine sahip olabiliriz.
-
-### We ❤️ Modern C++
-
-Aslında şu ana kadar yazdığımız kadarıyla başta istediğimiz gereksinimleri karşılar duruma geldik. Ancak, sadece C fonksiyonları için değil, C++ asenkron çağrıları için de `async_call_helper` sınıfını kullanabiliriz. Aynı şekilde, Modern C++'ın getirdiği [lambda][lambda-link] ifadeleri sayesinde, asenkron çağrıların cevapları, çağrının yapıldığı yerde yazılarak kodun okunaklığını da bir kat artırabiliriz.
-
-```cpp
-void safe_service::execute() 
-{
-  auto context = get_context<int>([this] (int result) {
-    std::cout << "received result" << result << "\n";
-    this->process_result_of_async_call(result);
-  });
-  c_long_async_function(context.context, context.callback, *param);
-}
-```
-
-Yukarıdaki gibi bir sentaksa sahip bir arayüzün olması, kodun ilk haline kıyasla ne kadar sade ve okunaklı değil mi. Devam edelim ve yukarıdaki kodu çalışır hale getirecek `get_context` metodumuzu yazalım. Yeni metodumuz bir önceki `get_context` metodu ile aynı mekaniklere sahip olacak, bunu yaparken sadece C geribildirim fonksiyonunu kendi içerisinde tutuyor olması gerekecek, ki asenkron çağrıya `context.callback` olarak o çağrının istediği imzaya sahip bir fonksiyon belirteçi verebilsin. Bunu yapmak için, fonksiyon imzasını bildiği bir fonksiyon belirteci*(function pointer)*, `context` objesi ve C++ çağrıları için `opertor()` metodlarına sahip bir `callback_context` objesini dönmesi gerekecek.
-
-```cpp
-template <typename ...Args>
-struct callback_context {
-  void *context;
-  void (*callback)(Args...);
-  void operator()(Args... args) noexcept {
-    std::invoke(callback, std::forward<Args>(args)...);
-  }
-};
-```
-
-`callback_context` objesinin template olması, asenkron çağrıda kullanılacak fonksiyonun argüman tiplerini bilmesine, çağrılara parametre olarak verilecek değişkenlerin doğru imzalara sahip olmasına imkan sağlayacaktır. C dilindeki çağrılar için, `context` ve `callback` değişkenlerini kullanırken, C++ çağrıları için ise `callback_context` nesnesinin kendisini asenkron çağrıya veriyor olmamız yeterli olacaktır.
-`callback_context` nesnesini dönecek yeni `get_context` metodumuzu yazmaya başlayalım. İçerisinde bir önceki metod gibi `asyn_call_token` türünü kalıtan bir yardımcı sınıfın olması gerekiyor. Bu yardımcı sınıf, bir önceki sınıftan farklı olarak, asenkron çağrının cevabını işleyecek [`lambda`][lambda-link] ifadeyi veya fonksiyon belirtecini de tutuyor olacak. Asenkron çağrı geri bildirim fonksiyonunu çağırdığı zaman, yazdığımız yeni yardımcı sınıf, servis nesnesi hala yaşıyor ise en başta verilen fonksiyonu çağırıyor olacak.
-
-```cpp
-template <typename Caller>
-class async_call_helper
-{
-public:
-  template <typename ...Args, typename Fn>
-  callback_context<void*, Args...> 
-  get_context(Fn&& cb) noexcept 
-  {
-    struct trampoline_t final
-      : public asyn_call_token
-    {
-      trampoline_t(std::weak_ptr<auto_ref_holder> ref_, 
-                   std::function<void(Args...)> callback_) 
-        : ref(ref_) 
-        , callback(std::move(callback_)) { }
-      ~trampoline_t() = default;
-
-      void* get_caller() override {
-        guard.lock();
-        auto sref = ref.lock();
-        return (sref) ? sref->get_parent() : nullptr;
-      }
-
-      static inline void callback_handle(void* context, Args... args) {
-        std::unique_ptr<trampoline_t> trampoline_ptr(
-          reinterpret_cast<trampoline_t*>(context));
-        if (trampoline_ptr->get_caller()) {
-          std::invoke(trampoline_ptr->callback, std::forward<Args>(args)...);
-        }
-      }
-    private:
-      std::weak_ptr<auto_ref_holder> ref;
-      std::function<void(Args...)> callback;
-    };
-    std::function<void(Args...)> callback = cb;
-    return callback_context<void*, Args...>
-           {
-             new trampoline_t(weak_ref(), std::move(callback)),
-             &trampoline_t::callback_handle
-           };
+  async_callback_token* get_context() const {
+    return lifetime_ref.get();
   }
   // ...
 };
 ```
 
-{: .box-note}
-**Note:** Bu yazıda karmaşıklığı daha da artırmamak için `get_context()` metodu için tür çıkarımı otomasyonu kullanılmamıştır. Tür çıkarımını, bütün olası fonksiyon belirteç varyasyonları için yapan arkadaşımız olursa, buraya kendisinin adıyla birlikte paylaşacağı kodları severek koymak isterim.
+**Note:** You can access the full code for the above example [here][godbolt-2].
 
-Yukarıda statik olarak tanımlanan `callback_handle` fonksiyonu, asenkron çağrının cevabını işleyecek fonksiyon görevini üstlenecek ve asıl kullanılmak istenilen geribildirim fonksiyonunu güvenli olarak çalıştıracak, ya da eğer servis objesi silinmiş ise hiçbir şey yapmayarak uygulamayı çakılmaktan kuratacak. `get_context()` metodu, asenkron çağrının cevabı için kullanacağı fonksiyonun türleri ile çağırılması sayesinde, `callback_context` objesini doğru değişkenler ile yaratabilmektedir.
+This approach allows us to design a general-purpose class, the `async_call_helper`, which can be used with any class that needs to make asynchronous calls, without requiring significant changes to the classes themselves. The `async_call_helper` takes care of managing the lifetimes of the objects and ensuring that the application doesn't crash when receiving asynchronous call responses. It also allows for flexible customization of the response handling process using function pointers like lambdas or bind.
 
-Bütün bu geliştirmeler sonrasında, asenkron çağrılarımıza verdiğimiz geri bildirim fonksiyonları, çağrıyı yapan nesnenin doğruluğunu kontrol ederek, hem güvenli bir şekilde uygulamanın çakılmasını önlerken, hem de daha modern bir yapıya sahip olmaktayız. Yazdığımız kodları birleştirirsek kodumuzun son hali aşağıdaki gibi olacaktır:
+In summary, the `async_call_helper` class, when used with classes that need to make asynchronous calls, simplifies the management of object lifetimes and enhances the safety and reliability of handling asynchronous call responses, all without introducing significant changes to the classes using it.
 
-{: .box-note}
-Örnek kodlara ve projenin son haline [GitHub](https://github.com/nixiz/async-call-helper) sayfası üzerinden erişebilirsiniz.
-
-```cpp
-struct asyn_call_token
-{
-  virtual ~asyn_call_token() = default;
-
-  template <typename Cast>
-  static inline Cast* from_context(void* context) noexcept
-  {
-    if (!context) return nullptr;
-    std::unique_ptr<asyn_call_token> act_handle(
-      reinterpret_cast<asyn_call_token*>(context));
-    return static_cast<Cast*>(act_handle->get_caller());
-  }
-protected:
-  virtual void* get_caller() = 0;
-};
-
-template <typename Caller>
-class async_call_helper
-{
-public:
-  using ThisType = async_call_helper<Caller>;
-  ~async_call_helper() = default;
-protected:
-  async_call_helper() {
-    lifetime_ref = std::make_shared<auto_ref_holder>(parent());
-  }
-
-  void* get_context() const noexcept 
-  {
-    struct special_token final
-      : public asyn_call_token
-    {
-      special_token(std::weak_ptr<auto_ref_holder> ref_, std::mutex& guard_) 
-        : ref(ref_) 
-        , guard(guard_, std::defer_lock) {}
-      
-      ~special_token() {
-        if (guard) {
-          guard.unlock();
-        }
-      }
-
-      void* get_caller() override {
-        guard.lock();
-        auto sref = ref.lock();
-        return (sref) ? sref->get_parent() : nullptr;
-      }
-    private:
-      std::weak_ptr<auto_ref_holder> ref;
-      std::unique_lock<std::mutex> guard;
-    };
-    return new special_token(weak_ref(), guard);
-  }
-  template <typename ...Args>
-  struct callback_context {
-    void *context;
-    void (*callback)(void*, Args...);
-    void operator()(Args... args) noexcept {
-      std::invoke(callback, context, std::forward<Args>(args)...);
-    }
-  };
-
-  template <typename ...Args, typename Fn>
-  callback_context<Args...> 
-  get_context(Fn&& cb) noexcept 
-  {
-    struct trampoline_t final
-      : public asyn_call_token
-    {
-      trampoline_t(std::weak_ptr<auto_ref_holder> ref_, 
-            std::mutex& guard_,
-            std::function<void(Args...)> callback_) 
-        : ref(ref_) 
-        , guard(guard_, std::defer_lock)
-        , callback(std::move(callback_)) {}
-      
-      ~trampoline_t() {
-        if (guard) {
-          guard.unlock();
-        }
-      }
-
-      void* get_caller() override {
-        guard.lock();
-        auto sref = ref.lock();
-        return (sref) ? sref->get_parent() : nullptr;
-      }
-
-      static inline void callback_handle(void* context, Args... args) {
-        std::unique_ptr<trampoline_t> trampoline_ptr(reinterpret_cast<trampoline_t*>(context));
-        if (!trampoline_ptr) return;
-        if (trampoline_ptr->get_caller()) {
-          std::invoke(trampoline_ptr->callback, std::forward<Args>(args)...);
-        }
-      }
-    private:
-      std::weak_ptr<auto_ref_holder> ref;
-      std::unique_lock<std::mutex> guard;
-      std::function<void(Args...)> callback;
-    };
-    std::function<void(Args...)> callback = cb;
-    return callback_context<Args...> {
-      new trampoline_t(weak_ref(), guard, std::move(callback)),
-      &trampoline_t::callback_handle
-    };
-  }
-protected:
-  Caller* parent() {
-    return static_cast<Caller*>(this);
-  }
-
-  const Caller* parent() const {
-    return static_cast<const Caller*>(this);
-  }
-
-  void set_deleted() noexcept {
-    std::lock_guard<std::mutex> lock(guard);
-    lifetime_ref.reset();
-  }
-
-private:
-  friend struct auto_ref_holder;
-  struct auto_ref_holder
-    : public std::enable_shared_from_this<auto_ref_holder> {
-    explicit auto_ref_holder(Caller* caller_) : caller(caller_) {}
-    Caller* get_parent() {return caller;}
-    const Caller* get_parent() const {return caller;}
-  private:
-    Caller* caller;
-  };
-
-  std::weak_ptr<auto_ref_holder> weak_ref() noexcept {
-    return lifetime_ref;
-  }
-
-  std::weak_ptr<auto_ref_holder> weak_ref() const noexcept {
-    return lifetime_ref;
-  }
-  std::shared_ptr<auto_ref_holder> lifetime_ref;
-  mutable std::mutex guard;
-};
-```
-
----
-
-[godbolt-1]: https://gist.github.com/nixiz/0055fefdc2b936b8f9ab6594b57a3abe
+[godbolt-1]: https://godbolt.org/z/9x7vno16s
+[godbolt-2]: https://godbolt.org/z/7j47TcTdc
+[enable-shared-this-link]: https://en.cppreference.com/w/cpp/memory/enable_shared_from_this
 [shared-ptr-link]: https://en.cppreference.com/w/cpp/memory/shared_ptr
 [weak-ptr-link]: https://en.cppreference.com/w/cpp/memory/weak_ptr
 [solid-link-wiki]: https://en.wikipedia.org/wiki/SOLID
 [lambda-link]: https://en.cppreference.com/w/cpp/language/lambda
 [bind-link]: https://en.cppreference.com/w/cpp/utility/functional/bind
 [crtp-link]: https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
-[enable-shared-this-link]: https://en.cppreference.com/w/cpp/memory/enable_shared_from_this
