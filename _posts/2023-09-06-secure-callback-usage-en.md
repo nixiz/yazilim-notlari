@@ -16,8 +16,16 @@ tags: [C++, templates, async, callback, modern-cpp, OOP]
 
 Managing the lifetimes of objects in C and C++ projects can be tricky, especially in places where asynchronous calls are made. This is because the lifetimes of objects that will receive feedback are not automatically extended in these places. This can lead to errors and crashes, so it's important to understand how to manage object lifetimes in these situations.
 
-
 ![C++ Road Map](/yazilim-notlari/assets/img/async_cb_banner.png){: .mx-auto.d-block :}
+
+---
+
+## TL;DR
+
+- **GitHub Repository:** You can access the complete code and project details on [GitHub](https://github.com/nixiz/async-call-helper).
+- **Summary:** This blog post explores the difficulties of managing object lifetimes in projects that use both C and C++ languages, with a focus on asynchronous calls. We discuss when the object lifetimes are not automatically extended in asynchronous scenarios, which can cause problems. The article also introduces an innovative solution using the `async_call_helper` class, which enhances code readability and ensures safe execution of asynchronous call responses, even provides extensions in modern C++ with lambda expressions. Dive deeper into this intriguing topic and discover how to create robust and reliable software in mixed-language environments.
+
+---
 
 For example, when we look at the code below, if the `service` object in the C library is deleted before the asynchronous call is completed, it is impossible for it to know whether it has been deleted in the feedback of the call. Since the `unsafe_service` object that is attempted to be accessed on line 3 has been deleted, the application will crash.
 
