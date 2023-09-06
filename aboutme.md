@@ -1,8 +1,7 @@
 ---
 layout: page
-title: Hakkımda
-subtitle: Oğuzhan Katlı Kimdir?
+title: About Me
+subtitle: Who Am I?
 ---
 
-2009 yılında Kiev Politeknik Enstitüsü Elektronik Mühendisliğinden mezun olan Oğuzhan KATLI, kariyeri boyunca ağırlıklı olarak Savunma Sanayi projelerinde görev almış, bir dönem Google Chrome tabanlı internet tarayıcısı olan Comodo Dragon tarayıcısının geliştirilmesinde katkı sağlamıştır. ASELSAN, STM, ICTerra gibi firmalara İleri Seviye C++ eğitimleri vermiştir.
-2020 Ağustos ayından itibaren Roketsan bünyesinde Lider Yazılım Mühendisi olarak görevine devam etmektedir.
+I am currently a Senior Software Engineer at ASML for the past two years. Prior to that, I spent more then a decade working in the defense industry, which allowed me to accumulate a wealth of knowledge and experience in C++, template metaprogramming, high performance programming including distributed systems and microservices. This experience not only improved my technical skills, but also taught in me the importance of precision and reliability in software development.

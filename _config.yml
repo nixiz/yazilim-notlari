@@ -10,18 +10,18 @@
 ############################
 
 # Name of website
-title: Yazılım Notları
+title: Coding Notes
 
 # Your name to show in the footer
-author: Oğuzhan Katlı
+author: Oğuzhan KATLI
 
 ###############################################
 # --- List of links in the navigation bar --- #
 ###############################################
 
 navbar-links:
-  Hakkımda: "aboutme"
-  Repolar: "https://github.com/nixiz"
+  AboutMe: "aboutme"
+  GitHub: "https://github.com/nixiz"
   C++ Türkiye:
     - Slack: "https://trcpp.slack.com"
     - Telegram: "https://t.me/+h3vaQkDA6D02M2Fk"
@@ -80,7 +80,7 @@ social-network-links:
 
 # If you want to show a link to an RSS in the footer, add the site description here.
 # If you don't want to show an RSS link, remove the following line.
-rss-description: RSS Akışları İçin
+rss-description: For the RSS Feeds
 
 ###########################
 # --- General options --- #
@@ -118,7 +118,7 @@ edit_page_button: false
 navbar-var-length: false
 
 # The keywords to associate with your website, for SEO purposes
-keywords: "Oğuzhan Katlı, C++20, C++, C++98, modern c++, STL, yazılım, programlama, template, metaprogramming, traits, gömülü yazılım, cpp, C, C++ Türkiye, windows, linux, sistem programlama, system programming, design pattern, yazılım kalıpları, oop, concurrency, parallel programming, multithread, boost, boost c++, qt, mdd, model driven development, model tabanlı, gtest, google test framework, cmake, nsis, git, subversion"
+keywords: "Oğuzhan Katlı, C++20, C++, C++98, Modern C++, STL, Object Lifetimes, Asynchronous Calls, Lifespan Management, Modern C++ Programming, Code Readability, Callback Functions, Software Development Best Practices, GitHub Repository, template metaprogramming, traits, type traits, cpp, C, C++ Türkiye, system programming, design patterns, OOP, concurrency, parallel programming, multithread, boost, boost C++, Qt, model driven development, gtest, google test framework, cmake, nsis, git, subversion"
 
 ######################################
 # --- Colours / background image --- #
