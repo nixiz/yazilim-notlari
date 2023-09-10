@@ -12,7 +12,7 @@ language: en
 tags: [C++, lazy evaluation, templates, programming]
 ---
 
-In my article where I introduced the [Range library](/software-notes/2020/12/17/cpp20-ranges) that came with the C++20 standard, I discussed the library's lazy evaluation approach and the benefits it brings to the language. While introducing the Range library, I attempted to convey its adapters and generators through practical examples without diving into technical details. However, understanding the Range library without understanding the concept of lazy evaluation can be challenging. Therefore, I'd like to talk to you about lazy evaluation and how the Range library enables it.
+In my article where I introduced the [Range library](/yazilim-notlari/2020/12/17/cpp20-ranges) that came with the C++20 standard, I discussed the library's lazy evaluation approach and the benefits it brings to the language. While introducing the Range library, I attempted to convey its adapters and generators through practical examples without diving into technical details. However, understanding the Range library without understanding the concept of lazy evaluation can be challenging. Therefore, I'd like to talk to you about lazy evaluation and how the Range library enables it.
 
 ![Expression Tempale Origin](/yazilim-notlari/assets/img/expression_template_origin.png){: .mx-auto.d-block :}
 
@@ -73,7 +73,7 @@ lazy_t<T1, T2> multiply(T1 x, T2 y)
 
 3. The `multiply` function can simply return the `lazy_t<T1, T2>` class, which stores the type information of the two arguments. The type information and values held by the resulting class will be used to calculate the final result by combining all the given operations.
 
-    > Note that before the introduction of the `[auto](https://en.cppreference.com/w/cpp/language/auto)` type deducer with Modern C++, it was necessary to explicitly define the types of intermediate classes created using the lazy approach.  
+    > Note that before the introduction of the [`auto`](https://en.cppreference.com/w/cpp/language/auto) type deducer with Modern C++, it was necessary to explicitly define the types of intermediate classes created using the lazy approach.  
     > Writing or defining the types of intermediate classes, even for combinations of two or three operations, was challenging and uninteresting in C++ due to the absence of features that simplify syntax.
 
 Let's start to implement the `lazy_t` class, which is returned by the `multiply` function.
