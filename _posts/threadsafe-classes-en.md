@@ -1,7 +1,7 @@
 ---
 layout: post
-title: Başlık
-subtitle: Kısa Açıklama
+title: The Thread Safety Challenge Rust, Java vs. C++
+subtitle: Simplify Concurrent Programming and Protect Shared Resources in C++ with Ease
 thumbnail-img: /assets/img/async_cb_banner.png
 share-img: /assets/img/async_cb_banner.png
 nav-short: true
@@ -17,7 +17,8 @@ tags: [C++, templates, async, callback, modern-cpp, OOP]
 ## TL;DR
 
 In modern C++ programming, thread safety is essential to avoid data corruption and unexpected behavior in concurrent applications. However, writing thread-safe code in C++ can be challenging, often requiring complex synchronization mechanisms.  
-In this article, I introduced the `thread_safe` helper class, which is designed to make it easier to write thread-safe C++ code. `thread_safe` provides a simple and easy-to-use interface for protecting shared resources, allowing developers to focus on their core logic without worrying about the details of low-level thread management.
+In this article, I introduced the `thread_safe` helper class, which is designed to make it easier to write thread-safe C++ code.  
+`thread_safe` provides a simple and easy-to-use interface for protecting shared resources, allowing developers to focus on their core logic without worrying about the details of low-level thread management.
 
 ```cpp
 class Counter {
@@ -220,7 +221,7 @@ int main()
 }
 ```
 
-If look at the example, you will see that the `Counter` class has no extra variables or logic to make count increment thread safe, yet the main code is also stays same despite of one single change, which is the definition of the `counter` variable is now encapsulated with `thread_safe` helper. To make this code runnable, you will need the `thread_safe` implementation:
+If look at the example, you will notice that the `Counter` class doesn't require any additional variables or logic to ensure the thread safety of `count` increments. Surprisingly, the main code remains unchanged, except for a single modification: encapsulating the `counter` variable using the `thread_safe` helper. To run this code successfully, you will need to include the `thread_safe` implementation:
 
 ```cpp
 template <typename T>
@@ -309,10 +310,26 @@ private:
 Let's break down the code part by part, starting with the `thread_safe` helper class and its associated components. `thread_safe` class has basically 3 main components:
 
 1. `auto_locker_t` class: this class is responsible for locking and unlocking between the actual function call is made from the `thread_safe` implementation. Thanks to the "pre-and postfunction calls" idiom mentioned above, following steps will be executed when the `counter->increment();` function call is made:
-   1. `auto_locker_t` class will be instantiated before the actual function call
-   2. `auto_locker_t` instance will call `lock()` to ensure the function call will execute thread safe
-   3. `T* auto_locker_t::operator->()` will forward to actual function call
-   4. `auto_locker_t` instance will call `unlock()` to release the mutex object
-   5. `~auto_locker_t()` object will destructed
+   * `auto_locker_t` class will be instantiated before the actual function call
+   * `auto_locker_t` instance will call `lock()` to ensure the function call will execute thread safe
+   * `T* auto_locker_t::operator->()` will forward to actual function call
+   * `auto_locker_t` instance will call `unlock()` to release the mutex object
+   * `~auto_locker_t()` object will destructed
+
 2. `lockable_T` class: this class will represents the `T` type, despite it will add `lock` and `unlock` functionality into `T` type to enable thread safety for that class. This idiom is also called [Mixin](https://en.wikipedia.org/wiki/Mixin) pattern, which is basically a class that contains methods for use by other classes without having to be the parent class of those other classes.
+
 3. `thread_safe` class itself looks like one another smart pointers which came with C++11. Main difference of this class to smart pointers is `thread_safe` class returns a `auto_locker_t` object instead of the reference of the `T` type. Which this allows to call the functions of the `T` class by having thread safety on top them.
+
+## Benefits to have `thread_safe` helper
+
+In modern C++ programming, thread safety is essential to avoid data corruption and unexpected behavior in concurrent applications. However, writing thread-safe code in C++ can be challenging, as it lacks built-in concurrency mechanisms. This is in contrast to languages like Rust, which offer more integrated solutions for thread safety.
+
+The `thread_safe` helper class simplifies thread safety in C++ by providing an easy-to-use interface for protecting shared resources. Its benefits include:
+
+1. **Simplified Thread Safety:** With `thread_safe`, you can ensure thread safety without complex synchronization mechanisms, making it easier to write concurrent C++ code.
+2. **Focus on Core Logic:** Developers can focus on their core logic and algorithms without getting bogged down in low-level thread management details.
+3. **Prevent Data Corruption:** `thread_safe` takes care of necessary synchronization, preventing data races and ensuring that shared resources are accessed safely.
+4. **Reusable Code:** You can use `thread_safe` with different classes, promoting code reusability and reducing the need for custom thread safety implementations.
+5. **Improved Readability:** The code remains concise and readable, making it easier for developers to understand and maintain.
+
+By encapsulating thread safety concerns within the `thread_safe` helper class, you can write cleaner, more maintainable, and more reliable concurrent C++ code.
