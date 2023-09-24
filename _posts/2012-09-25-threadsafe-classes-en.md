@@ -1,24 +1,25 @@
 ---
 layout: post
 title: The Thread Safety Challenge Rust, Java vs. C++
-subtitle: Simplify Concurrent Programming and Protect Shared Resources in C++ with Ease
-thumbnail-img: /assets/img/async_cb_banner.png
-share-img: /assets/img/async_cb_banner.png
+subtitle: Simplify Concurrent Programming and Safeguard Shared Resources in C++ with the thread_safe Helper Class
+thumbnail-img: /assets/img/thread_safe_banner_2.png
+share-img: /assets/img/thread_safe_banner_2.png
 nav-short: true
 comments: true
 readtime: true
 show-avatar: false
 language: tr
-gh-repo: nixiz/async-call-helper
+gh-repo: nixiz
 gh-badge: [star, follow]
-tags: [C++, templates, async, callback, modern-cpp, OOP]
+tags: [C++, threadsafe, template, modern-cpp, OOP]
 ---
+
+![C++ Road Map](/yazilim-notlari/assets/img/thread_safe_banner_2.png){: .mx-auto.d-block :}
 
 ## TL;DR
 
 In modern C++ programming, thread safety is essential to avoid data corruption and unexpected behavior in concurrent applications. However, writing thread-safe code in C++ can be challenging, often requiring complex synchronization mechanisms.  
-In this article, I introduced the `thread_safe` helper class, which is designed to make it easier to write thread-safe C++ code.  
-`thread_safe` provides a simple and easy-to-use interface for protecting shared resources, allowing developers to focus on their core logic without worrying about the details of low-level thread management.
+In this article, I introduced the `thread_safe` helper class, which is designed to make it easier to write thread-safe C++ code. `thread_safe` provides a simple and easy-to-use interface for protecting shared resources, allowing developers to focus on their core logic without worrying about the details of low-level thread management.
 
 ```cpp
 class Counter {
@@ -51,8 +52,8 @@ int main()
 }
 ```
 
-The `thread_safe` helper class will take care of all the necessary synchronization to ensure that the `counter` object is thread-safe. This means that you can safely access and modify the counter object from multiple threads without having to worry about data corruption or unexpected behavior.
-Complete example can be found in [here](https://gist.github.com/nixiz/8fbc4126d50e33a9802aa5198d87ba74).
+The `thread_safe` helper class will take care of all the necessary synchronization to ensure that the `counter` object is thread-safe. This means that you can safely access and modify the counter object from multiple threads without having to worry about data corruption or unexpected behavior.  
+Complete example with `thread_safe` implementation can be found in [here](https://gist.github.com/nixiz/8fbc4126d50e33a9802aa5198d87ba74).
 
 ## Threadsafe Classes
 
@@ -118,10 +119,6 @@ In this example, we create two threads (`thread1` and `thread2`) that concurrent
 In C++, a lock is a synchronization mechanism used to control access to shared resources among multiple threads. It prevents data races and ensures that only one thread can access a particular resource at a time. C++ provides several types of locks, including std::mutex, std::unique_lock, and std::lock_guard, among others. Developers can choose the appropriate lock type based on their specific requirements. Here's a simple example of using std::mutex to protect a shared resource:
 
 ```cpp
-#include <iostream>
-#include <thread>
-#include <mutex>
-
 class Counter {
 public:
     void increment() {
@@ -245,9 +242,7 @@ struct auto_locker_t {
 
 private:
   auto_locker_t() = delete;
-  // cannot delete copy ctor because of thread safety policy
-  // classes are returning copy of this class (before C++17)
-  // auto_locker_t(const auto_locker_t&) = delete;
+  auto_locker_t(const auto_locker_t&) = delete;
   auto_locker_t& operator=(const auto_locker_t&) = delete;
   T* ptr;
 };
@@ -309,16 +304,16 @@ private:
 
 Let's break down the code part by part, starting with the `thread_safe` helper class and its associated components. `thread_safe` class has basically 3 main components:
 
-1. `auto_locker_t` class: this class is responsible for locking and unlocking between the actual function call is made from the `thread_safe` implementation. Thanks to the "pre-and postfunction calls" idiom mentioned above, following steps will be executed when the `counter->increment();` function call is made:
-   * `auto_locker_t` class will be instantiated before the actual function call
-   * `auto_locker_t` instance will call `lock()` to ensure the function call will execute thread safe
-   * `T* auto_locker_t::operator->()` will forward to actual function call
-   * `auto_locker_t` instance will call `unlock()` to release the mutex object
-   * `~auto_locker_t()` object will destructed
+  1. `auto_locker_t` class: this class is responsible for locking and unlocking between the actual function call is made from the     `thread_safe` implementation. Thanks to the "pre-and postfunction calls" idiom mentioned above, following steps will be executed when the `counter->increment();` function call is made:
+      * `auto_locker_t` class will be instantiated before the actual function call
+      * `auto_locker_t` instance will call `lock()` to ensure the function call will execute thread safe
+      * `T* auto_locker_t::operator->()` will forward to actual function call
+      * `auto_locker_t` instance will call `unlock()` to release the mutex object
+      * `~auto_locker_t()` object will destructed
 
-2. `lockable_T` class: this class will represents the `T` type, despite it will add `lock` and `unlock` functionality into `T` type to enable thread safety for that class. This idiom is also called [Mixin](https://en.wikipedia.org/wiki/Mixin) pattern, which is basically a class that contains methods for use by other classes without having to be the parent class of those other classes.
+  2. `lockable_T` class: this class will represents the `T` type, despite it will add `lock` and `unlock` functionality into `T` type to enable thread safety for that class. This idiom is also called [Mixin](https://en.wikipedia.org/wiki/Mixin) pattern, which is basically a class that contains methods for use by other classes without having to be the parent class of those other classes.
 
-3. `thread_safe` class itself looks like one another smart pointers which came with C++11. Main difference of this class to smart pointers is `thread_safe` class returns a `auto_locker_t` object instead of the reference of the `T` type. Which this allows to call the functions of the `T` class by having thread safety on top them.
+  3. `thread_safe` class itself looks like one another smart pointers which came with C++11. Main difference of this class to smart pointers is `thread_safe` class returns a `auto_locker_t` object instead of the reference of the `T` type. Which this allows to call the functions of the `T` class by having thread safety on top them.
 
 ## Benefits to have `thread_safe` helper
 
