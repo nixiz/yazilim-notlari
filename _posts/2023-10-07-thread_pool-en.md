@@ -181,28 +181,7 @@ post(Executor& exec, std::tuple<use_future_tag, Fn>&& tpl)
 **Quote:** *"All problems in computer science can be solved by another level of indirection",  Butler Lampson, 1972*
 
 - **Second `post` Function:** As the `thread_pool` class only accepts `std::packaged_task<void()>` type of callable into its queue, I had to create a higher order function, a local callable class `forwarder_t` which makes the actual function call, stores the return value into a promise object and returns void. When the `thread_pool` run the task which has return value, the following sequence will be executed:
-    {% plantuml %}
-    @startuml
-    participant thread_pool as tp
-    participant forwarder_t as fwd
-    participant Task as task
-
-    tp -> tp: run()
-    activate tp
-    tp -> fwd: job()
-    activate fwd
-    fwd -> fwd: operator(promise<return_type>)
-    activate fwd
-    fwd -> task: task()
-    activate task
-    task --> fwd: return value
-    deactivate fwd
-    deactivate task
-    fwd -> fwd: promise.set_value()
-    fwd --> tp: return;
-    deactivate fwd
-    @enduml
-    {% endplantuml %}
+    ![Sequence Diagram](/yazilim-notlari/assets/img/use_future_high_order_sequence_diagram.png){: .mx-auto.d-block :}
 
 ## Complete Example
 
