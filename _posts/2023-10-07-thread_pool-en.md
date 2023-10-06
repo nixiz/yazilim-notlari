@@ -2,8 +2,8 @@
 layout: post
 title: Building a Thread Pool with C++ and STL
 subtitle: Exploring Thread Pools, Boost asio::thread_pool, and Creating a Pure C++ Solution from Scratch
-thumbnail-img: /assets/img/thread_safe_banner_2.png
-share-img: /assets/img/thread_safe_banner_2.png
+thumbnail-img: /assets/img/thread_pool_banner.png
+share-img: /assets/img/thread_pool_banner.png
 nav-short: true
 comments: true
 readtime: true
@@ -59,7 +59,7 @@ int main() {
 
 ## Rewrite It with STL
 
-When I saw the new `thread_pool` usage and the new `executor` defitinition to Asio library, I really liked it. To understand how they achieved to get return values from async operations by using single wrapper function and to improve my skills I decided to rewrite the thread_pool implementation in plain C++ and using only STL. As I was trying to replicate the `boost::asio::thread_pool` implementation, I kept the function calls and `use_future` wrapper as a requirement for myself. When I finished to implement, my own `thread_pool` design was as below:
+When I saw the new `thread_pool` usage and the new [`executor`](https://www.boost.org/doc/libs/1_83_0/doc/html/boost_asio/std_executors.html) definition in the Asio library, I was impressed. To understand how they were able to get return values from asynchronous operations using a single wrapper function and to improve my skills, I decided to rewrite the thread pool implementation in plain C++ using only the STL. I set a requirement for myself to replicate the `boost::asio::thread_pool` implementation as closely as possible, including the function calls and [`use_future`](https://www.boost.org/doc/libs/1_83_0/boost/asio/use_future.hpp) wrapper. When I finished my implementation, it looked like this:
 
 ```cpp
 class thread_pool
@@ -116,7 +116,8 @@ Let's break down the key components of the implementation:
 - **`post` Method:** Enqueues a new task into the task queue and notifies a waiting thread.
 
 - **`run` Method:** The actual function executed by each worker thread. It continuously waits for tasks in the queue and executes them. In this function, thread_pool doesn't know and does not care whether the executing function has return value or not. This will be handled by the global `post` function by using `use_future` wrapper function.
-    Note: where the line `thread_local std::packaged_task<void()> job;` I used `thread_local` to make sure that the ownership of the executing task is moved to the thread where it will be called.
+    {: .box-note}
+    **Note:** where the line `thread_local std::packaged_task<void()> job;` I used [`thread_local`](https://en.cppreference.com/w/cpp/language/storage_duration) to make sure that the ownership of the executing task is moved to the thread where it will be called.
 
 Let's write the global `post` and `use_future` functions to complete the thread pool implementation:
 
@@ -172,9 +173,9 @@ post(Executor& exec, std::tuple<use_future_tag, Fn>&& tpl)
 }
 ```
 
-- **`post` Function:** this is the plain function which only creates a `packaged_task` from the given lambda or function pointer and puts into queue of the provided `Executor` class, which is our `thread_pool` in this instance.
+- **`post` Function:** this is the plain function which only creates a [`packaged_task`](https://en.cppreference.com/w/cpp/thread/packaged_task) from the given lambda or function pointer and puts into queue of the provided `Executor` class, which is our `thread_pool` in this instance.
 
-- **`use_future` Function:** Instead of Boost implementation, which they have created an allocator aware wrapper class that holds the callable, what I did here is I simply moved the callable object into a tuple with `use_future_tag` struct. Therefore I can create an overload version of `post` function returns a `std::future<>` object with the return type of the callable object.
+- **`use_future` Function:** Instead of Boost implementation, which they have created an allocator aware wrapper class that holds the callable, what I did here is I simply moved the callable object into a tuple with [`use_future_tag`](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Tag_Dispatching) struct. Therefore I can create an overload version of `post` function returns a `std::future<>` object with the return type of the callable object.
 
 {: .box-note}
 **Quote:** *"All problems in computer science can be solved by another level of indirection",  Butler Lampson, 1972*
@@ -202,9 +203,10 @@ post(Executor& exec, std::tuple<use_future_tag, Fn>&& tpl)
     deactivate fwd
     @enduml
     {% endplantuml %}
-    ![Sequence Diagram](/yazilim-notlari/assets/img/use_future_high_order_sequence_diagram.png){: .mx-auto.d-block :}
 
 ## Complete Example
+
+I learned a lot by studying how thread pools work, exploring the Boost asio::thread_pool library, and writing my own thread pool implementation in plain C++. I think this experience has helped me to understand concurrent programming better, especially how thread pools work. I hope this article has been helpful to you, whether you are using Boost's thread pool or are looking for a simpler, dependency-free solution. Happy coding
 
 [Compiler Explorer](https://godbolt.org/z/6oTco3Tjz)
 
