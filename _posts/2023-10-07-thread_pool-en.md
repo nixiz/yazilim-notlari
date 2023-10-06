@@ -14,6 +14,8 @@ gh-badge: [star, follow]
 tags: [C++, threadpool, template, modern-cpp, OOP]
 ---
 
+![Thread Pool](/yazilim-notlari/assets/img/thread_pool_banner.png){: .mx-auto.d-block :}
+
 ## Thread Pool Implementation in C++
 
 Thread pools are a fundamental concept in concurrent programming, providing a way to efficiently manage and execute a large number of tasks concurrently. Thread pools are a group of worker threads that can be used to execute tasks concurrently. Instead of creating a new thread for each task, a thread pool reuses existing threads, which can significantly improve performance and resource utilization. Boost's [asio::thread_pool](https://www.boost.org/doc/libs/1_83_0/doc/html/boost_asio/reference/thread_pool.html) is a powerful tool in the Boost library that makes asynchronous I/O and concurrency easier. Inspired by Boost, this article carefully shows how to create a thread pool using only the STL and C++. The article also includes code breakdowns and PlantUML diagrams to help readers understand the implementation better. The complete example can be found at the end of the article or [here](https://gist.github.com/nixiz/12bdf1c267c45fab9468c6cff1617092)
@@ -28,7 +30,7 @@ Boost libraries are often considered for inclusion in the C++ Standard Library, 
 
 [Boost Asio](https://www.boost.org/doc/libs/1_83_0/doc/html/boost_asio.html) is a part of the Boost library that provides support for asynchronous I/O and concurrency. It's commonly used for building network and communication applications. Asynchronous I/O allows the program to perform other tasks while waiting for I/O operations to complete, improving efficiency and responsiveness.
 
-### `boost::asio::thread_pool`
+### boost::asio::thread_pool
 
 The Asio library in Boost includes a thread pool implementation starting with 1.66 version. `boost::asio::thread_pool` is a component within `boost::asio` that provides a simple way to manage a pool of threads. Thread pools are a common concurrency pattern where a fixed number of worker threads are created and used to execute tasks concurrently. This is especially useful in scenarios where creating and destroying threads can be expensive.
 
@@ -116,8 +118,9 @@ Let's break down the key components of the implementation:
 - **`post` Method:** Enqueues a new task into the task queue and notifies a waiting thread.
 
 - **`run` Method:** The actual function executed by each worker thread. It continuously waits for tasks in the queue and executes them. In this function, thread_pool doesn't know and does not care whether the executing function has return value or not. This will be handled by the global `post` function by using `use_future` wrapper function.
-    {: .box-note}
-    **Note:** where the line `thread_local std::packaged_task<void()> job;` I used [`thread_local`](https://en.cppreference.com/w/cpp/language/storage_duration) to make sure that the ownership of the executing task is moved to the thread where it will be called.
+
+{: .box-note}
+**Note:** where the line `thread_local std::packaged_task<void()> job;` I used [`thread_local`](https://en.cppreference.com/w/cpp/language/storage_duration) to make sure that the ownership of the executing task is moved to the thread where it will be called.
 
 Let's write the global `post` and `use_future` functions to complete the thread pool implementation:
 
