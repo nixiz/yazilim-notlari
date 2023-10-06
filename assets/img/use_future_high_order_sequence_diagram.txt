@@ -1,0 +1,21 @@
+@startuml
+participant thread_pool as tp
+participant forwarder_t as fwd
+participant Task as task
+
+tp -> tp: run()
+activate tp
+tp -> fwd: job()
+activate fwd
+fwd -> fwd: operator(promise<return_type>)
+activate fwd
+fwd -> task: task()
+activate task
+task --> fwd: return value
+deactivate fwd
+deactivate task
+fwd -> fwd: promise.set_value()
+fwd --> tp: return;
+deactivate fwd
+
+@enduml
