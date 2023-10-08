@@ -18,13 +18,11 @@ tags: [C++, threadpool, template, modern-cpp, OOP]
 
 ## Thread Pool Implementation in C++
 
-Thread pools are a fundamental concept in concurrent programming, providing a way to efficiently manage and execute a large number of tasks concurrently. Thread pools are a group of worker threads that can be used to execute tasks concurrently. Instead of creating a new thread for each task, a thread pool reuses existing threads, which can significantly improve performance and resource utilization. Boost's [asio::thread_pool](https://www.boost.org/doc/libs/1_83_0/doc/html/boost_asio/reference/thread_pool.html) is a powerful tool in the Boost library that makes asynchronous I/O and concurrency easier. Inspired by Boost, this article carefully shows how to create a thread pool using only the STL and C++. The article also includes code breakdowns and PlantUML diagrams to help readers understand the implementation better. The complete example can be found at the end of the article or [here](https://gist.github.com/nixiz/12bdf1c267c45fab9468c6cff1617092)
+Thread pools are a fundamental concept in concurrent programming, providing a way to efficiently manage and execute a large number of tasks concurrently. Thread pools are a group of worker threads that can be used to execute tasks concurrently. Instead of creating a new thread for each task, a thread pool reuses existing threads, which can significantly improve performance and resource utilization. Boost's [asio::thread_pool](https://www.boost.org/doc/libs/1_83_0/doc/html/boost_asio/reference/thread_pool.html) is a powerful tool in the Boost library that makes asynchronous I/O and concurrency easier. Inspired by Boost, this article carefully shows how to create a thread pool using only the STL and C++. The article also includes code breakdowns and sequence diagrams to help readers understand the implementation better. The complete example can be found [here](https://gist.github.com/nixiz/12bdf1c267c45fab9468c6cff1617092) or at the end of the article.
 
 ### Boost Library
 
-[Boost](https://www.boost.org/) is a set of high-quality, peer-reviewed C++ libraries that are designed to work well with the C++ Standard Library. These libraries cover a wide range of functionalities, including data structures, algorithms, I/O, concurrency, and more. Boost aims to provide portable, efficient, and reusable code for C++ developers.
-
-Boost libraries are often considered for inclusion in the C++ Standard Library, and many Boost components have eventually made their way into the standard.
+The [Boost](https://www.boost.org/) libraries are a collection of open-source C++ libraries that provide a wide range of functionality, including networking, concurrency, filesystem, regular expressions, and testing. Boost aims to provide portable, efficient, and reusable code for C++ developers. The Boost libraries are a valuable source of new features and functionality for the C++ language, and many Boost components have been adopted into the C++ Standard Library over the years.
 
 ### Boost Asio Library
 
@@ -32,8 +30,7 @@ Boost libraries are often considered for inclusion in the C++ Standard Library, 
 
 ### boost::asio::thread_pool
 
-The Asio library in Boost includes a thread pool implementation starting with 1.66 version. `boost::asio::thread_pool` is a component within `boost::asio` that provides a simple way to manage a pool of threads. Thread pools are a common concurrency pattern where a fixed number of worker threads are created and used to execute tasks concurrently. This is especially useful in scenarios where creating and destroying threads can be expensive.
-
+The Asio library in Boost includes a thread pool implementation starting with 1.66 version. `boost::asio::thread_pool` is a component within `boost::asio` that provides a simple way to manage a pool of threads.
 Here's a basic overview of using `boost::asio::thread_pool`:
 
 ```cpp
